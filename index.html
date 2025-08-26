@@ -1,3 +1,4 @@
+</html>
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,40 +6,173 @@
   <title>主页-HZY</title>
   <meta charset="UTF-8">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-    }
-    .content {
-      flex: 1;
-      padding: 30px;
-    }
-    .sidebar {
-      width: 250px;
-      height: 1000px;
-      background-color: #111; 
-      color: #fff; 
-      padding-top: 20px; 
-    }
-    .sidebar a {
-      padding:  10px 20px;
-      text-decoration:  none;
-      color:  #ccc;
-      display:  block;
-    }
-    nav {
-      background-color:  #333;
-      padding:  10px;
-    }
-    nav a {
-      color:  #ccc;
-      padding:  20px;
-      text-decoration: none;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
 
-  </style>
+        .content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 1000px;
+            background-color: #2d2d2d;
+            color: #fff;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #ccc;
+            display: block;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: #ccc;
+            padding: 20px;
+            text-decoration: none;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 0.5rem;
+            border: 3px solid #00a1d6;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: rotate(8deg) scale(1.1);
+        }
+
+        h2 {
+            color: #00a1d6;
+            margin-bottom: 2rem;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            transition: text-shadow 0.3s ease;
+        }
+
+        h2:hover {
+            text-shadow: 2px 2px 6px rgba(0, 161, 214, 0.4);
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .contact-img-container {
+            position: relative;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background-color: #333;
+        }
+
+        .contact-img {
+            width: 100%;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-img:hover {
+            transform: scale(1.02);
+        }
+
+        .special-card {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ff5252;
+            box-shadow: 0 4px 20px rgba(255, 82, 82, 0.4);
+        }
+
+        .special-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 255, 255, 0.1) 10px,
+                    rgba(255, 255, 255, 0.1) 20px);
+            animation: shine 3s infinite linear;
+            z-index: 0;
+        }
+
+        .special-card a {
+            position: relative;
+            z-index: 1;
+            color: white !important;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .special-card img {
+            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+        }
+
+        @keyframes shine {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <body>
   <div class="sidebar">
@@ -52,8 +186,11 @@
       <a href="https://hzy1618yzh.qzz.io">意见</a>
     </nav>
     <h1 style="text-align:center;"> 欢迎来到HZY的个人主页！ </h1>
+    <div class="link-card special-card"><a href="/fuck" target="_blank" rel="noopener noreferrer"
+                style="color: inherit; text-decoration: none; display: flex; align-items: center; justify-content: center;"><img
+                    src="https://cdn.luogu.com.cn/upload/image_hosting/iwg6l3rh.png" alt="⚠️ 电子教室杀手下载图标"
+                    style="width: 24px; height: 24px; margin-right: 10px;">⚠️ 电子教室杀手下载</a></div>
   </div>
 
 </body>
 </html>
-
