@@ -1,130 +1,118 @@
-</html>
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-  <title>主页-HZY</title>
-  <meta charset="UTF-8">
-  <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        .content {
-            flex: 1;
-            padding: 30px;
-        }
-
-        .sidebar {
-            width: 250px;
-            height: 1000px;
-            background-color: #2d2d2d;
-            color: #fff;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #ccc;
-            display: block;
-        }
-
-        nav {
-            background-color: #333;
-            padding: 10px;
-        }
-
-        nav a {
-            color: #ccc;
-            padding: 20px;
-            text-decoration: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页-HZY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
         }
 
         body {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            color: #fff;
-            min-height: 100vh;
-            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6f7f9;
+            margin-left: 50px;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            z-index: 1000;
         }
 
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin-bottom: 0.5rem;
-            border: 3px solid #00a1d6;
-            object-fit: cover;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+        .sidebar:hover {
+            width: 180px;
         }
 
-        .avatar:hover {
-            transform: rotate(8deg) scale(1.1);
+        .sidebar-nav {
+            list-style: none;
+            padding: 20px 0;
         }
 
-        h2 {
-            color: #00a1d6;
-            margin-bottom: 2rem;
-            font-size: 1.8em;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-            transition: text-shadow 0.3s ease;
+        .nav-item {
+            position: relative;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            transition: background-color 0.2s ease;
+            min-height: 24px;
+            cursor: pointer;
         }
 
-        h2:hover {
-            text-shadow: 2px 2px 6px rgba(0, 161, 214, 0.4);
+        .nav-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .nav-icon {
+            min-width: 24px;
+            color: #495057;
+            font-size: 18px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-text {
+            color: #343a40;
+            font-size: 14px;
+            font-weight: 500;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
+
+        .sidebar:hover .nav-text {
+            opacity: 1;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 8px 15px;
         }
 
         .link-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 15px;
             padding: 1.5rem;
-            margin: 1rem 0;
+            margin: 1.5rem 0;
             transition: transform 0.3s;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-card a {
+            position: relative;
+            z-index: 1;
+            color: black !important;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
 
         .link-card:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .contact-img-container {
-            position: relative;
-            margin-top: 2rem;
-            width: 100%;
-            max-width: 800px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            background-color: #333;
-        }
-
-        .contact-img {
-            width: 100%;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .contact-img:hover {
-            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .special-card {
@@ -157,40 +145,77 @@
             color: white !important;
             font-weight: bold;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
         }
 
         .special-card img {
             filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
-        }
-
-        @keyframes shine {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
         }
     </style>
 </head>
-<body>
-  <div class="sidebar">
-    <a href="https://hzy1618yzh.qzz.io">主页</a>
-    <a href="https://hzy1618yzh.qzz.io/game">游戏</a>
-  </div>
-  <div class="content">
-    <nav>
-      <a href="https://hzy1618yzh.qzz.io">主页</a>
-      <a href="https://hzy1618yzh.qzz.io">关于</a>
-      <a href="https://hzy1618yzh.qzz.io">意见</a>
-    </nav>
-    <h1 style="text-align:center;"> 欢迎来到HZY的个人主页！ </h1>
-    <div class="link-card special-card"><a href="/elcl killer" target="_blank" rel="noopener noreferrer"
-                style="color: inherit; text-decoration: none; display: flex; align-items: center; justify-content: center;"><img
-                    src="https://cdn.luogu.com.cn/upload/image_hosting/iwg6l3rh.png" alt="⚠️ 电子教室杀手下载图标"
-                    style="width: 24px; height: 24px; margin-right: 10px;">⚠️ 电子教室杀手下载</a></div>
-  </div>
 
+<body>
+    <nav class="sidebar">
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a href="https://hzy1618yzh.qzz.io/"><i class="nav-icon fas fa-home"></i></a>
+                <a href="https://hzy1618yzh.qzz.io/"><span class="nav-text">首页</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="https://hzy1618yzh.qzz.io/game"><i class="nav-icon fas fa-gamepad"></i></a>
+                <a href="https://hzy1618yzh.qzz.io/game"><span class="nav-text">游戏</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="https://hzy1618yzh.qzz.io/game"><i class="nav-icon fas fa-wrench"></i></a>
+                <a href="https://hzy1618yzh.qzz.io/game"><span class="nav-text">实用工具</span></a>
+            </li>
+            <li class="nav-divider"></li>
+        </ul>
+    </nav>
+    <main style="padding: 20px;">
+        <h1>欢迎来到HZY的个人主页！</h1>
+
+        <div class="link-card">
+            <h2>个人简介</h2>
+            <p>我是HZY，一名热爱编程和算法竞赛的学习者。这个网站展示我的项目和作品。</p>
+        </div>
+
+        <div class="link-card special-card">
+            <a href="/elcl killer" target="_blank" rel="noopener noreferrer">
+                <img src="https://cdn.luogu.com.cn/upload/image_hosting/iwg6l3rh.png" alt="⚠️ 电子教室杀手下载图标">
+                ⚠️ 电子教室杀手下载
+            </a>
+        </div>
+        <a href="https://blog.csdn.net/D56795?spm=1000.2115.3001.5343">
+        <div class="link-card">
+            <h2>我的博客</h2>
+            <p>我经常分享编程技巧和开发经验，欢迎阅读我的技术博客文章。</p>
+        </div>
+        </a>
+    </main>
+    <div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.link-card');
+
+            cards.forEach(card => {
+                card.addEventListener('click', function () {
+                    if (this.querySelector('a')) {
+                        this.querySelector('a').click();
+                    }
+                });
+            });
+            const navLinks = document.querySelectorAll('nav a, .sidebar a');
+    </script>
 </body>
+
 </html>
