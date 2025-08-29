@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - HZY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 复用基础样式 */
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .article-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .article-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .article-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .article-content {
+            line-height: 1.8;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #4a6cf7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 复用侧边栏 -->
+    <nav class="sidebar">
+        <!-- 侧边栏内容与其他页面相同 -->
+    </nav>
+
+    <main class="article-container">
+        <a href="/article" class="back-link">
+            <i class="fas fa-arrow-left"></i> 返回文章列表
+        </a>
+        
+        <div class="article-header">
+            <h1 class="article-title" id="article-title">文章标题</h1>
+            <div class="article-meta" id="article-meta">
+                <span>发布于: <span id="publish-date"></span></span>
+                <span>编码: <span id="article-code"></span></span>
+            </div>
+        </div>
+        
+        <div class="article-content" id="article-content">
+            <!-- 文章内容将通过JavaScript加载 -->
+        </div>
+    </main>
+
+    <script>
+        // 获取当前文章编码（从URL中提取）
+        function getArticleCode() {
+            const path = window.location.pathname;
+            const parts = path.split('/');
+            return parts[parts.length - 1];
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const articleCode = getArticleCode();
+            
+            // 在实际项目中，这里会从后端API加载文章内容
+            // 这里仅做示例
+            document.getElementById('article-code').textContent = articleCode;
+            document.getElementById('publish-date').textContent = new Date().toLocaleDateString();
+            
+            // 实际项目中会替换为从服务器获取的内容
+            document.getElementById('article-title').textContent = "示例文章标题";
+            document.getElementById('article-content').innerHTML = `
+                <p>这是一篇示例文章内容...</p>
+                <p>文章编码是: ${articleCode}</p>
+            `;
+        });
+    </script>
+</body>
+</html>
