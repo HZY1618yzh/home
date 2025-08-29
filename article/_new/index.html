@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布新文章 - HZY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 复用基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6f7f9;
+            margin-left: 60px;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* 复用侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* 编辑器样式 */
+        .editor-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        #title {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.2rem;
+        }
+        
+        #content {
+            width: 100%;
+            min-height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #4a6cf7;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- 复用侧边栏 -->
+    <nav class="sidebar">
+        <!-- 侧边栏内容与其他页面相同 -->
+    </nav>
+
+    <main class="editor-container">
+        <h1>发布新文章</h1>
+        <form id="article-form">
+            <div class="form-group">
+                <label for="title">文章标题</label>
+                <input type="text" id="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="content">文章内容</label>
+                <textarea id="content" required></textarea>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">发布文章</button>
+                <a href="/article" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // 生成唯一编码的函数（小写字母+数字）
+        function generateUniqueCode(length = 8) {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let code = '';
+            for (let i = 0; i < length; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        document.getElementById('article-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const uniqueCode = generateUniqueCode();
+            
+            // 在实际项目中，这里会将数据发送到后端保存
+            console.log({
+                title,
+                content,
+                code: uniqueCode,
+                createdAt: new Date()
+            });
+            
+            // 模拟提交成功后跳转到文章页面
+            alert('文章发布成功！');
+            window.location.href = `/article/${uniqueCode}`;
+        });
+    </script>
+</body>
+</html>
