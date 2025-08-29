@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章列表 - HZY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6f7f9;
+            margin-left: 60px;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            color: #666;
+        }
+
+        .nav-text {
+            display: none;
+            margin-left: 10px;
+        }
+
+        .sidebar:hover {
+            width: 200px;
+        }
+
+        .sidebar:hover .nav-text {
+            display: inline;
+        }
+
+        .sidebar:hover .nav-item {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 10px 0;
+        }
+
+        /* 文章列表样式 */
+        .article-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .article-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        
+        .article-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .article-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .article-title a {
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .article-title a:hover {
+            color: #4a6cf7;
+        }
+        
+        .article-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .new-article-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #4a6cf7;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .new-article-btn:hover {
+            background: #3a5ce7;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 10px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            body {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav class="sidebar">
+        <ul class="sidebar-nav">
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/'">
+                <i class="nav-icon fas fa-home"></i>
+                <span class="nav-text">首页</span>
+            </li>
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/game'">
+                <i class="nav-icon fas fa-gamepad"></i>
+                <span class="nav-text">游戏</span>
+            </li>
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/tools'">
+                <i class="nav-icon fas fa-wrench"></i>
+                <span class="nav-text">实用工具</span>
+            </li>
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/article'">
+                <i class="nav-icon fas fa-file-alt"></i>
+                <span class="nav-text">文章</span>
+            </li>
+            <li class="nav-divider"></li>
+            <li class="nav-item" onclick="window.location='https://github.com/HZY1618yzh/home'">
+                <i class="nav-icon fab fa-github"></i>
+                <span class="nav-text">GitHub</span>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="article-list">
+        <h1 class="page-title">文章列表</h1>
+        <a href="https://hzy1618yzh.qzz.io/article/_new" class="new-article-btn">
+            <i class="fas fa-plus"></i> 发布新文章
+        </a>
+        
+        <!-- 文章列表容器 -->
+        <div id="articles-container">
+            <div class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h3>暂无文章</h3>
+                <p>点击"发布新文章"开始创作吧</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 加载文章列表
+        async function loadArticles() {
+            try {
+                const response = await fetch('https://hzy1618yzh.qzz.io/api/articles');
+                const articles = await response.json();
+                const container = document.getElementById('articles-container');
+                
+                container.innerHTML = ''; // 清空容器
+                
+                if (articles.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>暂无文章</h3>
+                            <p>点击"发布新文章"开始创作吧</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 按发布时间倒序排列（最新的在前）
+                articles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                // 生成文章列表
+                articles.forEach(article => {
+                    const articleItem = document.createElement('div');
+                    articleItem.className = 'article-item';
+                    articleItem.innerHTML = `
+                        <h2 class="article-title">
+                            <a href="https://hzy1618yzh.qzz.io/article/${article.code}">${article.title}</a>
+                        </h2>
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> ${new Date(article.createdAt).toLocaleString()}</span>
+                            <span><i class="far fa-hashtag"></i> ${article.code}</span>
+                        </div>
+                        <p>${article.summary}</p>
+                    `;
+                    container.appendChild(articleItem);
+                });
+            } catch (error) {
+                console.error('加载文章列表失败:', error);
+                document.getElementById('articles-container').innerHTML = `
+                    <div class="empty-state" style="color:#dc3545;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>加载失败</h3>
+                        <p>请刷新页面重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html>
