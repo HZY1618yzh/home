@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客系统 - 文章管理</title>
+    <title>GitHub博客系统 - 文章管理</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -325,6 +325,61 @@
             margin-bottom: 16px;
             color: #dbe0e6;
         }
+        
+        /* 加载状态 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eaeef2;
+            border-top: 4px solid #0969da;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-error {
+            background-color: #ffebe9;
+            border: 1px solid #ffcecb;
+            color: #cf222e;
+        }
+        
+        .alert-success {
+            background-color: #dafbe1;
+            border: 1px solid #ace1af;
+            color: #1a7f37;
+        }
+        
+        .github-info {
+            background-color: #f6f8fa;
+            border: 1px solid #dbe0e6;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .github-info i {
+            margin-right: 8px;
+            color: #656d76;
+        }
     </style>
 </head>
 <body>
@@ -339,6 +394,11 @@
     </div>
 
     <div class="container">
+        <div class="github-info">
+            <i class="fab fa-github"></i>
+            正在使用 GitHub 存储文章数据: HZY1618yzh/home
+        </div>
+
         <div id="app">
             <!-- 内容将由JavaScript动态渲染 -->
         </div>
@@ -360,32 +420,264 @@
         // 状态管理
         const state = {
             currentView: 'article-list',
-            articles: JSON.parse(localStorage.getItem('articles')) || [],
+            articles: [],
             currentArticle: null,
-            articleToDelete: null
+            articleToDelete: null,
+            githubToken: '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',
+            repoOwner: 'HZY1618yzh',
+            repoName: 'home',
+            repoPath: 'articles'
         };
 
-        // 示例数据
-        if (state.articles.length === 0) {
-            state.articles = [
-                {
-                    id: 1,
-                    code: 'a1b2c3d4',
-                    title: '欢迎使用博客系统',
-                    excerpt: '这是您的第一篇文章，可以编辑或删除它',
-                    content: '# 欢迎使用博客系统\n\n这是一个基于GitHub风格的博客系统，您可以使用Markdown编写文章。\n\n## 功能特点\n- Markdown编辑与实时预览\n- 文章管理（创建、编辑、删除）\n- 响应式设计\n- 简洁的UI界面\n\n## 使用方法\n1. 点击"创建文章"按钮新建文章\n2. 使用Markdown语法编写内容\n3. 点击发布保存文章\n4. 在文章列表中管理您的文章\n\n祝您使用愉快！',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    code: 'e5f6g7h8',
-                    title: 'Markdown语法指南',
-                    excerpt: '学习如何使用Markdown格式化您的文章',
-                    content: '# Markdown语法指南\n\nMarkdown是一种轻量级标记语言，可以让您使用简单的语法来格式化文本。\n\n## 标题\n\n```markdown\n# 一级标题\n## 二级标题\n### 三级标题\n```\n\n## 列表\n\n无序列表：\n- 项目1\n- 项目2\n- 项目3\n\n有序列表：\n1. 第一项\n2. 第二项\n3. 第三项\n\n## 链接和图片\n\n[链接文本](https://example.com)\n\n![图片描述](https://example.com/image.jpg)\n\n## 代码\n\n行内代码：`console.log("Hello World")`\n\n代码块：\n```javascript\nfunction hello() {\n  console.log("Hello World");\n}\n```',
-                    createdAt: new Date(Date.now() - 86400000).toISOString()
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRoute();
+        });
+
+        // GitHub API函数
+        async function githubAPI(endpoint, options = {}) {
+            if (!state.githubToken) {
+                throw new Error('GitHub Token未设置');
+            }
+            
+            const url = `https://api.github.com${endpoint}`;
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Authorization': `token ${state.githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    ...options.headers
                 }
-            ];
-            localStorage.setItem('articles', JSON.stringify(state.articles));
+            });
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API错误: ${response.status} ${response.statusText}`);
+            }
+            
+            return response.json();
+        }
+
+        // 获取文章列表
+        async function fetchArticles() {
+            try {
+                // 显示加载状态
+                document.getElementById('app').innerHTML = `
+                    <div class="main-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                `;
+                
+                // 尝试从GitHub获取文章列表
+                let articlesData = [];
+                try {
+                    // 获取仓库内容
+                    const contents = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}`);
+                    articlesData = contents.filter(item => item.name.endsWith('.md'));
+                } catch (error) {
+                    // 如果目录不存在，返回空数组
+                    if (error.message.includes('404')) {
+                        return [];
+                    }
+                    throw error;
+                }
+                
+                // 转换GitHub API响应到文章对象
+                state.articles = await Promise.all(articlesData.map(async (item) => {
+                    // 获取文件内容
+                    const fileContent = await githubAPI(item.url);
+                    const content = atob(fileContent.content);
+                    const firstLine = content.split('\n')[0];
+                    const title = firstLine.replace(/^#\s+/, '');
+                    const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
+                    
+                    return {
+                        id: item.sha,
+                        code: item.name.replace('.md', ''),
+                        title: title,
+                        excerpt: excerpt,
+                        content: content,
+                        path: item.path,
+                        sha: item.sha,
+                        createdAt: item.name.replace('.md', '')
+                    };
+                }));
+                
+                return state.articles;
+            } catch (error) {
+                console.error('获取文章列表失败:', error);
+                showError('获取文章列表失败: ' + error.message);
+                return [];
+            }
+        }
+
+        // 获取单篇文章
+        async function fetchArticle(code) {
+            try {
+                const article = state.articles.find(a => a.code === code);
+                if (article) return article;
+                
+                // 如果不在缓存中，直接从GitHub获取
+                const fileContent = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`);
+                const content = atob(fileContent.content);
+                const firstLine = content.split('\n')[0];
+                const title = firstLine.replace(/^#\s+/, '');
+                const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
+                
+                return {
+                    id: fileContent.sha,
+                    code: code,
+                    title: title,
+                    excerpt: excerpt,
+                    content: content,
+                    path: fileContent.path,
+                    sha: fileContent.sha,
+                    createdAt: code
+                };
+            } catch (error) {
+                console.error('获取文章失败:', error);
+                showError('获取文章失败: ' + error.message);
+                return null;
+            }
+        }
+
+        // 创建文章
+        async function createArticle(title, content, excerpt = '') {
+            try {
+                // 生成唯一编码
+                const code = generateCode();
+                const filename = `${code}.md`;
+                const path = `${state.repoPath}/${filename}`;
+                
+                // 创建文章内容 - 标题作为H1，然后是内容
+                const articleContent = `# ${title}\n\n${content}`;
+                const encodedContent = btoa(unescape(encodeURIComponent(articleContent)));
+                
+                // 创建文件
+                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${path}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        message: `创建文章: ${title}`,
+                        content: encodedContent
+                    })
+                });
+                
+                const newArticle = {
+                    id: response.content.sha,
+                    code: code,
+                    title: title,
+                    excerpt: excerpt,
+                    content: articleContent,
+                    path: path,
+                    sha: response.content.sha,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // 添加到文章列表
+                state.articles.unshift(newArticle);
+                
+                showSuccess('文章创建成功!');
+                return newArticle;
+            } catch (error) {
+                console.error('创建文章失败:', error);
+                showError('创建文章失败: ' + error.message);
+                throw error;
+            }
+        }
+
+        // 更新文章
+        async function updateArticle(code, title, content, excerpt = '') {
+            try {
+                const article = state.articles.find(a => a.code === code);
+                if (!article) {
+                    throw new Error('文章未找到');
+                }
+                
+                // 更新文章内容
+                const updatedContent = `# ${title}\n\n${content}`;
+                const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
+                
+                // 更新文件
+                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        message: `更新文章: ${title}`,
+                        content: encodedContent,
+                        sha: article.sha
+                    })
+                });
+                
+                // 更新本地文章数据
+                article.title = title;
+                article.excerpt = excerpt;
+                article.content = updatedContent;
+                article.sha = response.content.sha;
+                
+                showSuccess('文章更新成功!');
+                return article;
+            } catch (error) {
+                console.error('更新文章失败:', error);
+                showError('更新文章失败: ' + error.message);
+                throw error;
+            }
+        }
+
+        // 删除文章
+        async function deleteArticle(code) {
+            try {
+                const article = state.articles.find(a => a.code === code);
+                if (!article) {
+                    throw new Error('文章未找到');
+                }
+                
+                // 删除文件
+                await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
+                    method: 'DELETE',
+                    body: JSON.stringify({
+                        message: `删除文章: ${article.title}`,
+                        sha: article.sha
+                    })
+                });
+                
+                // 从本地文章列表中移除
+                state.articles = state.articles.filter(a => a.code !== code);
+                
+                showSuccess('文章删除成功!');
+                return true;
+            } catch (error) {
+                console.error('删除文章失败:', error);
+                showError('删除文章失败: ' + error.message);
+                throw error;
+            }
+        }
+
+        // 显示错误消息
+        function showError(message) {
+            const app = document.getElementById('app');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-error';
+            alert.textContent = message;
+            app.prepend(alert);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // 显示成功消息
+        function showSuccess(message) {
+            const app = document.getElementById('app');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = message;
+            app.prepend(alert);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
         }
 
         // 路由功能
@@ -426,8 +718,21 @@
         }
 
         // 渲染函数
-        function renderArticleList() {
+        async function renderArticleList() {
             state.currentView = 'article-list';
+            
+            // 显示加载状态
+            document.getElementById('app').innerHTML = `
+                <div class="main-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            `;
+            
+            // 获取文章
+            await fetchArticles();
+            
             const articlesHtml = state.articles.length ? 
                 state.articles.map(article => `
                     <li class="article-item">
@@ -436,8 +741,7 @@
                                 ${article.title}
                             </a>
                             <div class="article-meta">
-                                发布于 ${new Date(article.createdAt).toLocaleDateString()}
-                                <span class="badge">${article.code}</span>
+                                文章ID: <span class="badge">${article.code}</span>
                             </div>
                             <div class="article-excerpt">${article.excerpt || '暂无摘要'}</div>
                         </div>
@@ -465,9 +769,27 @@
             `;
         }
 
-        function renderArticleForm(editCode = null) {
+        async function renderArticleForm(editCode = null) {
             const isEdit = !!editCode;
-            const article = isEdit ? state.articles.find(a => a.code === editCode) : null;
+            let article = null;
+            
+            if (isEdit) {
+                // 显示加载状态
+                document.getElementById('app').innerHTML = `
+                    <div class="main-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                `;
+                
+                article = await fetchArticle(editCode);
+                if (!article) {
+                    showError('文章未找到');
+                    navigateTo('/article');
+                    return;
+                }
+            }
             
             state.currentView = isEdit ? 'article-edit' : 'article-new';
             document.getElementById('app').innerHTML = `
@@ -490,7 +812,7 @@
                                     <button type="button" class="editor-tab" onclick="switchEditorTab('preview')">预览</button>
                                 </div>
                                 <div class="editor-content active" id="edit-tab">
-                                    <textarea class="form-control" id="article-content" rows="15" required>${article ? article.content : ''}</textarea>
+                                    <textarea class="form-control" id="article-content" rows="15" required>${article ? article.content.replace(/^#\s+.*\n\n/, '') : ''}</textarea>
                                 </div>
                                 <div class="editor-content markdown-body" id="preview-tab"></div>
                             </div>
@@ -511,21 +833,40 @@
 
             // 初始预览
             document.getElementById('preview-tab').innerHTML = 
-                DOMPurify.sanitize(marked.parse(article ? article.content : '暂无内容'));
+                DOMPurify.sanitize(marked.parse(article ? article.content.replace(/^#\s+.*\n\n/, '') : '暂无内容'));
 
             // 表单提交处理
-            document.getElementById('article-form').addEventListener('submit', function(e) {
+            document.getElementById('article-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                if (isEdit) {
-                    updateArticle(editCode);
-                } else {
-                    createNewArticle();
+                const title = document.getElementById('article-title').value;
+                const excerpt = document.getElementById('article-excerpt').value;
+                const content = document.getElementById('article-content').value;
+                
+                try {
+                    if (isEdit) {
+                        await updateArticle(editCode, title, content, excerpt);
+                        navigateTo(`/article/${editCode}`);
+                    } else {
+                        const newArticle = await createArticle(title, content, excerpt);
+                        navigateTo(`/article/${newArticle.code}`);
+                    }
+                } catch (error) {
+                    console.error('保存文章失败:', error);
                 }
             });
         }
 
-        function renderArticleDetail(code) {
-            const article = state.articles.find(a => a.code === code);
+        async function renderArticleDetail(code) {
+            // 显示加载状态
+            document.getElementById('app').innerHTML = `
+                <div class="main-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            `;
+            
+            const article = await fetchArticle(code);
             if (!article) {
                 document.getElementById('app').innerHTML = `
                     <div class="main-content">
@@ -550,8 +891,7 @@
                         </div>
                     </div>
                     <div class="article-meta">
-                        发布于 ${new Date(article.createdAt).toLocaleDateString()} 
-                        <span class="badge">${article.code}</span>
+                        文章ID: <span class="badge">${article.code}</span>
                     </div>
                     <div class="article-content markdown-body">
                         ${DOMPurify.sanitize(marked.parse(article.content))}
@@ -564,47 +904,13 @@
         }
 
         // 文章操作函数
-        function generateCode() {
-            return Math.random().toString(36).substring(2, 10);
-        }
-
-        function createNewArticle() {
-            const title = document.getElementById('article-title').value;
-            const excerpt = document.getElementById('article-excerpt').value;
-            const content = document.getElementById('article-content').value;
-            
-            const newArticle = {
-                id: Date.now(),
-                code: generateCode(),
-                title,
-                excerpt,
-                content,
-                createdAt: new Date().toISOString()
-            };
-            
-            state.articles.unshift(newArticle);
-            localStorage.setItem('articles', JSON.stringify(state.articles));
-            
-            navigateTo(`/article/${newArticle.code}`);
-        }
-
-        function updateArticle(code) {
-            const title = document.getElementById('article-title').value;
-            const excerpt = document.getElementById('article-excerpt').value;
-            const content = document.getElementById('article-content').value;
-            
-            const articleIndex = state.articles.findIndex(a => a.code === code);
-            if (articleIndex !== -1) {
-                state.articles[articleIndex] = {
-                    ...state.articles[articleIndex],
-                    title,
-                    excerpt,
-                    content
-                };
-                
-                localStorage.setItem('articles', JSON.stringify(state.articles));
-                navigateTo(`/article/${code}`);
+        function generateCode(length = 8) {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
+            return result;
         }
 
         function showDeleteModal(code) {
@@ -617,12 +923,10 @@
             state.articleToDelete = null;
         }
 
-        function confirmDelete() {
+        async function confirmDelete() {
             if (state.articleToDelete) {
-                const articleIndex = state.articles.findIndex(a => a.code === state.articleToDelete);
-                if (articleIndex !== -1) {
-                    state.articles.splice(articleIndex, 1);
-                    localStorage.setItem('articles', JSON.stringify(state.articles));
+                try {
+                    await deleteArticle(state.articleToDelete);
                     
                     // 如果当前正在查看被删除的文章，重定向到列表
                     if (state.currentView === 'article-detail' && 
@@ -632,6 +936,8 @@
                     } else {
                         renderArticleList();
                     }
+                } catch (error) {
+                    console.error('删除失败:', error);
                 }
             }
             closeModal();
@@ -655,12 +961,6 @@
                     DOMPurify.sanitize(marked.parse(content || '暂无内容'));
             }
         }
-
-        // 初始化
-        window.addEventListener('popstate', handleRoute);
-        window.addEventListener('DOMContentLoaded', () => {
-            handleRoute();
-        });
 
         // 全局函数
         window.navigateTo = navigateTo;
