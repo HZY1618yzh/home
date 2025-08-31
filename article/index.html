@@ -3,971 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub博客系统 - 文章管理</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
+    <title>技术博客 | 文章管理</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.5/dist/purify.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: #f6f8fa;
-            color: #1F2328;
-            line-height: 1.5;
+            background-color: #f5f7f9;
+            color: #333;
+            line-height: 1.6;
         }
         
         .container {
-            max-width: 1280px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 16px;
+            padding: 20px;
         }
         
-        /* 导航栏样式 */
-        .navbar {
-            background-color: #24292f;
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
-            padding: 16px 0;
-            margin-bottom: 24px;
+            padding: 20px 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
         }
         
-        .navbar .container {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 20px;
         }
         
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 600;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .navbar-nav {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-item {
-            margin-left: 16px;
-        }
-        
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            text-decoration: underline;
-        }
-        
-        /* 主内容区域 */
-        .main-content {
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #dbe0e6;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        /* 页面标题 */
-        .page-title {
+        .logo {
             font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #dbe0e6;
-        }
-        
-        /* 文章列表 */
-        .article-list {
-            list-style: none;
-        }
-        
-        .article-item {
-            padding: 16px 0;
-            border-bottom: 1px solid #dbe0e6;
+            font-weight: bold;
             display: flex;
-            justify-content: space-between;
             align-items: center;
         }
         
-        .article-item:last-child {
-            border-bottom: none;
+        .logo i {
+            margin-right: 10px;
         }
         
-        .article-info {
-            flex: 1;
+        nav ul {
+            display: flex;
+            list-style: none;
         }
         
-        .article-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0969da;
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
             text-decoration: none;
-            margin-bottom: 8px;
-            display: block;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.3s;
         }
         
-        .article-title:hover {
-            text-decoration: underline;
+        nav ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 25px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #6a11cb;
+            color: #6a11cb;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        
+        .sidebar ul li a {
+            color: #555;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar ul li a:hover {
+            background: #f0f5ff;
+            color: #2575fc;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-header h2 {
+            color: #6a11cb;
+            font-size: 28px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #6a11cb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #2575fc;
+            transform: translateY(-2px);
+        }
+        
+        .article-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .article-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .article-card h3 {
+            color: #333;
+            margin-bottom: 10px;
         }
         
         .article-meta {
+            display: flex;
+            color: #777;
             font-size: 14px;
-            color: #656d76;
-            margin-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .article-meta span {
+            margin-right: 15px;
         }
         
         .article-excerpt {
-            color: #1F2328;
-            margin-bottom: 8px;
+            color: #555;
+            margin-bottom: 15px;
         }
         
         .article-actions {
             display: flex;
-            gap: 8px;
+            justify-content: space-between;
         }
         
-        /* 按钮样式 */
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #2da44e;
-            color: white;
+        .article-actions a {
+            color: #6a11cb;
             text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
             font-weight: 500;
-            border: 1px solid rgba(27, 31, 36, 0.15);
-            cursor: pointer;
-            transition: background-color 0.2s;
         }
         
-        .btn:hover {
-            background-color: #2c974b;
+        .article-actions a:hover {
+            text-decoration: underline;
         }
         
-        .btn-secondary {
-            background-color: #f6f8fa;
-            color: #1F2328;
-            border: 1px solid rgba(27, 31, 36, 0.15);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #eaeef2;
-        }
-        
-        .btn-danger {
-            background-color: #cf222e;
-        }
-        
-        .btn-danger:hover {
-            background-color: #a40e26;
-        }
-        
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-        
-        /* 表单样式 */
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #0969da;
-            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
-        }
-        
-        textarea.form-control {
-            min-height: 200px;
-            resize: vertical;
-        }
-        
-        /* Markdown编辑器样式 */
         .editor-container {
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         
-        .editor-tabs {
-            display: flex;
-            background-color: #f6f8fa;
-            border-bottom: 1px solid #dbe0e6;
+        .editor-section, .preview-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
         }
         
-        .editor-tab {
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
+        .editor-section h3, .preview-section h3 {
+            margin-bottom: 15px;
+            color: #6a11cb;
         }
         
-        .editor-tab.active {
-            font-weight: 600;
-            border-bottom: 2px solid #FD8C73;
-        }
-        
-        .editor-content {
-            display: none;
-            padding: 16px;
-            min-height: 300px;
-        }
-        
-        .editor-content.active {
-            display: block;
-        }
-        
-        #markdown-preview {
-            background-color: white;
-        }
-        
-        /* 文章内容样式 */
-        .article-content {
-            padding: 24px 0;
-        }
-        
-        /* 工具类 */
-        .d-none {
-            display: none;
-        }
-        
-        .text-right {
-            text-align: right;
-        }
-        
-        .mt-3 {
-            margin-top: 16px;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background-color: #eaeef2;
-            border-radius: 24px;
-            font-size: 12px;
-            color: #1F2328;
-            margin-left: 8px;
-        }
-        
-        /* 确认对话框 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        textarea {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+            min-height: 400px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+        }
+        
+        #preview {
+            min-height: 400px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+            overflow-wrap: break-word;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .article-detail {
+            padding: 20px;
+        }
+        
+        .article-detail h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+        
+        .article-content {
+            line-height: 1.8;
+            font-size: 17px;
+        }
+        
+        .article-content h1, .article-content h2, .article-content h3 {
+            margin: 25px 0 15px;
+            color: #6a11cb;
+        }
+        
+        .article-content p {
+            margin-bottom: 15px;
+        }
+        
+        .article-content code {
+            background: #f5f7f9;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .article-content pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s;
             z-index: 1000;
         }
         
-        .modal-content {
-            background-color: white;
-            padding: 24px;
-            border-radius: 6px;
-            width: 400px;
-            max-width: 90%;
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
         }
         
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 16px;
-        }
-        
-        /* 空状态 */
-        .empty-state {
+        footer {
             text-align: center;
-            padding: 40px 0;
-            color: #656d76;
+            margin-top: 50px;
+            padding: 20px;
+            color: #777;
+            border-top: 1px solid #eee;
         }
         
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #dbe0e6;
-        }
-        
-        /* 加载状态 */
-        .loading {
-            display: flex;
-            justify-content: center;
-            padding: 40px 0;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #eaeef2;
-            border-top: 4px solid #0969da;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-        }
-        
-        .alert-error {
-            background-color: #ffebe9;
-            border: 1px solid #ffcecb;
-            color: #cf222e;
-        }
-        
-        .alert-success {
-            background-color: #dafbe1;
-            border: 1px solid #ace1af;
-            color: #1a7f37;
-        }
-        
-        .github-info {
-            background-color: #f6f8fa;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .github-info i {
-            margin-right: 8px;
-            color: #656d76;
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand">返回主页</a>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('/article')">文章列表</a></li>
-                <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('/article/_new')">创建文章</a></li>
-            </ul>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-blog"></i>
+                <span>技术博客</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">首页</a></li>
+                    <li><a href="/article">文章</a></li>
+                    <li><a href="#">关于</a></li>
+                    <li><a href="#">联系</a></li>
+                </ul>
+            </nav>
         </div>
-    </div>
+    </header>
 
     <div class="container">
-        <div class="github-info">
-            <i class="fab fa-github"></i>
-            正在使用 GitHub 存储文章数据: HZY1618yzh/home
-        </div>
+        <div class="main-content">
+            <aside class="sidebar">
+                <h3>文章分类</h3>
+                <ul>
+                    <li><a href="#">前端开发</a></li>
+                    <li><a href="#">后端技术</a></li>
+                    <li><a href="#">数据库</a></li>
+                    <li><a href="#">DevOps</a></li>
+                    <li><a href="#">人工智能</a></li>
+                </ul>
+                
+                <h3>热门文章</h3>
+                <ul>
+                    <li><a href="#">React Hooks 最佳实践</a></li>
+                    <li><a href="#">Node.js 性能优化</a></li>
+                    <li><a href="#">CSS Grid 布局指南</a></li>
+                    <li><a href="#">TypeScript 高级技巧</a></li>
+                </ul>
+            </aside>
 
-        <div id="app">
-            <!-- 内容将由JavaScript动态渲染 -->
+            <main class="content">
+                <div class="page-header">
+                    <h2>文章列表</h2>
+                    <a href="/article/_new" class="btn">新建文章</a>
+                </div>
+
+                <div class="article-list">
+                    <div class="article-card">
+                        <h3>使用GitHub Pages搭建个人博客</h3>
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> 2023-10-15</span>
+                            <span><i class="far fa-user"></i> 管理员</span>
+                            <span><i class="far fa-folder"></i> 前端开发</span>
+                        </div>
+                        <p class="article-excerpt">本文将介绍如何使用GitHub Pages快速搭建一个免费的个人博客，包括自定义域名、Jekyll主题选择等高级技巧。</p>
+                        <div class="article-actions">
+                            <a href="/article/a1b2c3d4">阅读更多</a>
+                            <a href="/article/edit/a1b2c3d4">编辑</a>
+                        </div>
+                    </div>
+
+                    <div class="article-card">
+                        <h3>Markdown写作入门指南</h3>
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> 2023-10-10</span>
+                            <span><i class="far fa-user"></i> 管理员</span>
+                            <span><i class="far fa-folder"></i> 工具</span>
+                        </div>
+                        <p class="article-excerpt">Markdown是一种轻量级标记语言，允许人们使用易读易写的纯文本格式编写文档。本文将介绍Markdown的基本语法和高级用法。</p>
+                        <div class="article-actions">
+                            <a href="/article/e5f6g7h8">阅读更多</a>
+                            <a href="/article/edit/e5f6g7h8">编辑</a>
+                        </div>
+                    </div>
+
+                    <div class="article-card">
+                        <h3>JavaScript异步编程详解</h3>
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> 2023-10-05</span>
+                            <span><i class="far fa-user"></i> 管理员</span>
+                            <span><i class="far fa-folder"></i> JavaScript</span>
+                        </div>
+                        <p class="article-excerpt">从回调函数到Promise，再到async/await，JavaScript的异步编程模式不断演进。本文将详细讲解这些技术的原理和使用场景。</p>
+                        <div class="article-actions">
+                            <a href="/article/i9j0k1l2">阅读更多</a>
+                            <a href="/article/edit/i9j0k1l2">编辑</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- 删除确认模态框 -->
-    <div class="modal" id="deleteModal">
-        <div class="modal-content">
-            <h3 class="modal-title">确认删除</h3>
-            <p>您确定要删除这篇文章吗？此操作无法撤销。</p>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
-            </div>
-        </div>
-    </div>
+    <footer>
+        <p>© 2023 技术博客 | 使用 GitHub API 存储数据 | 由 Markdown 驱动</p>
+    </footer>
+
+    <div class="notification" id="notification">文章已成功保存！</div>
 
     <script>
-        // 状态管理
-        const state = {
-            currentView: 'article-list',
-            articles: [],
-            currentArticle: null,
-            articleToDelete: null,
-            githubToken: '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',
-            repoOwner: 'HZY1618yzh',
-            repoName: 'home',
-            repoPath: 'articles'
-        };
-
-        // 初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            handleRoute();
-        });
-
-        // GitHub API函数
-        async function githubAPI(endpoint, options = {}) {
-            if (!state.githubToken) {
-                throw new Error('GitHub Token未设置');
-            }
+        // 简单的Markdown解析器
+        function parseMarkdown(md) {
+            // 标题
+            md = md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            md = md.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            md = md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
             
-            const url = `https://api.github.com${endpoint}`;
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    'Authorization': `token ${state.githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    ...options.headers
-                }
-            });
+            // 粗体和斜体
+            md = md.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>');
+            md = md.replace(/\*(.*)\*/gim, '<em>$1</em>');
             
-            if (!response.ok) {
-                throw new Error(`GitHub API错误: ${response.status} ${response.statusText}`);
-            }
+            // 代码块和内联代码
+            md = md.replace(/```([\s\S]*?)```/gim, '<pre>$1</pre>');
+            md = md.replace(/`(.*?)`/gim, '<code>$1</code>');
             
-            return response.json();
-        }
-
-        // 获取文章列表
-        async function fetchArticles() {
-            try {
-                // 显示加载状态
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                `;
-                
-                // 尝试从GitHub获取文章列表
-                let articlesData = [];
-                try {
-                    // 获取仓库内容
-                    const contents = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}`);
-                    articlesData = contents.filter(item => item.name.endsWith('.md'));
-                } catch (error) {
-                    // 如果目录不存在，返回空数组
-                    if (error.message.includes('404')) {
-                        return [];
-                    }
-                    throw error;
-                }
-                
-                // 转换GitHub API响应到文章对象
-                state.articles = await Promise.all(articlesData.map(async (item) => {
-                    // 获取文件内容
-                    const fileContent = await githubAPI(item.url);
-                    const content = atob(fileContent.content);
-                    const firstLine = content.split('\n')[0];
-                    const title = firstLine.replace(/^#\s+/, '');
-                    const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
-                    
-                    return {
-                        id: item.sha,
-                        code: item.name.replace('.md', ''),
-                        title: title,
-                        excerpt: excerpt,
-                        content: content,
-                        path: item.path,
-                        sha: item.sha,
-                        createdAt: item.name.replace('.md', '')
-                    };
-                }));
-                
-                return state.articles;
-            } catch (error) {
-                console.error('获取文章列表失败:', error);
-                showError('获取文章列表失败: ' + error.message);
-                return [];
-            }
-        }
-
-        // 获取单篇文章
-        async function fetchArticle(code) {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (article) return article;
-                
-                // 如果不在缓存中，直接从GitHub获取
-                const fileContent = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`);
-                const content = atob(fileContent.content);
-                const firstLine = content.split('\n')[0];
-                const title = firstLine.replace(/^#\s+/, '');
-                const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
-                
-                return {
-                    id: fileContent.sha,
-                    code: code,
-                    title: title,
-                    excerpt: excerpt,
-                    content: content,
-                    path: fileContent.path,
-                    sha: fileContent.sha,
-                    createdAt: code
-                };
-            } catch (error) {
-                console.error('获取文章失败:', error);
-                showError('获取文章失败: ' + error.message);
-                return null;
-            }
-        }
-
-        // 创建文章
-        async function createArticle(title, content, excerpt = '') {
-            try {
-                // 生成唯一编码
-                const code = generateCode();
-                const filename = `${code}.md`;
-                const path = `${state.repoPath}/${filename}`;
-                
-                // 创建文章内容 - 标题作为H1，然后是内容
-                const articleContent = `# ${title}\n\n${content}`;
-                const encodedContent = btoa(unescape(encodeURIComponent(articleContent)));
-                
-                // 创建文件
-                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${path}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        message: `创建文章: ${title}`,
-                        content: encodedContent
-                    })
-                });
-                
-                const newArticle = {
-                    id: response.content.sha,
-                    code: code,
-                    title: title,
-                    excerpt: excerpt,
-                    content: articleContent,
-                    path: path,
-                    sha: response.content.sha,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // 添加到文章列表
-                state.articles.unshift(newArticle);
-                
-                showSuccess('文章创建成功!');
-                return newArticle;
-            } catch (error) {
-                console.error('创建文章失败:', error);
-                showError('创建文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 更新文章
-        async function updateArticle(code, title, content, excerpt = '') {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (!article) {
-                    throw new Error('文章未找到');
-                }
-                
-                // 更新文章内容
-                const updatedContent = `# ${title}\n\n${content}`;
-                const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
-                
-                // 更新文件
-                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        message: `更新文章: ${title}`,
-                        content: encodedContent,
-                        sha: article.sha
-                    })
-                });
-                
-                // 更新本地文章数据
-                article.title = title;
-                article.excerpt = excerpt;
-                article.content = updatedContent;
-                article.sha = response.content.sha;
-                
-                showSuccess('文章更新成功!');
-                return article;
-            } catch (error) {
-                console.error('更新文章失败:', error);
-                showError('更新文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 删除文章
-        async function deleteArticle(code) {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (!article) {
-                    throw new Error('文章未找到');
-                }
-                
-                // 删除文件
-                await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        message: `删除文章: ${article.title}`,
-                        sha: article.sha
-                    })
-                });
-                
-                // 从本地文章列表中移除
-                state.articles = state.articles.filter(a => a.code !== code);
-                
-                showSuccess('文章删除成功!');
-                return true;
-            } catch (error) {
-                console.error('删除文章失败:', error);
-                showError('删除文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 显示错误消息
-        function showError(message) {
-            const app = document.getElementById('app');
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-error';
-            alert.textContent = message;
-            app.prepend(alert);
+            // 链接和图片
+            md = md.replace(/!\[(.*?)\]\((.*?)\)/gim, "<img alt='$1' src='$2' />");
+            md = md.replace(/\[(.*?)\]\((.*?)\)/gim, "<a href='$2'>$1</a>");
             
-            // 3秒后自动消失
+            // 段落和换行
+            md = md.replace(/\n\n/gim, '</p><p>');
+            md = md.replace(/\n/gim, '<br>');
+            
+            return '<p>' + md + '</p>';
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
             setTimeout(() => {
-                alert.remove();
+                notification.classList.remove('show');
             }, 3000);
         }
 
-        // 显示成功消息
-        function showSuccess(message) {
-            const app = document.getElementById('app');
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.textContent = message;
-            app.prepend(alert);
-            
-            // 3秒后自动消失
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-        }
-
-        // 路由功能
-        function navigateTo(path) {
-            // 确保路径以/article开头
-            if (!path.startsWith('/article')) {
-                path = '/article' + (path.startsWith('/') ? path : '/' + path);
-            }
-            
-            window.history.pushState({}, '', path);
-            handleRoute();
-        }
-
-        function handleRoute() {
-            const path = window.location.pathname;
-            
-            if (path === '/article' || path === '/article/') {
-                renderArticleList();
-            } else if (path === '/article/_new') {
-                renderArticleForm();
-            } else if (path.startsWith('/article/_edit/')) {
-                const code = path.split('/article/_edit/')[1];
-                if (code) {
-                    renderArticleForm(code);
-                } else {
-                    renderArticleList();
-                }
-            } else if (path.startsWith('/article/')) {
-                const code = path.split('/article/')[1];
-                if (code && code !== '_new') {
-                    renderArticleDetail(code);
-                } else {
-                    renderArticleList();
-                }
-            } else {
-                renderArticleList();
-            }
-        }
-
-        // 渲染函数
-        async function renderArticleList() {
-            state.currentView = 'article-list';
-            
-            // 显示加载状态
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            `;
-            
-            // 获取文章
-            await fetchArticles();
-            
-            const articlesHtml = state.articles.length ? 
-                state.articles.map(article => `
-                    <li class="article-item">
-                        <div class="article-info">
-                            <a href="#" class="article-title" onclick="navigateTo('/article/${article.code}')">
-                                ${article.title}
-                            </a>
-                            <div class="article-meta">
-                                文章ID: <span class="badge">${article.code}</span>
-                            </div>
-                            <div class="article-excerpt">${article.excerpt || '暂无摘要'}</div>
-                        </div>
-                        <div class="article-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="navigateTo('/article/_edit/${article.code}')">编辑</button>
-                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${article.code}')">删除</button>
-                        </div>
-                    </li>
-                `).join('') : 
-                `<div class="empty-state">
-                    <i class="fas fa-file-alt"></i>
-                    <p>暂无文章，<a href="#" onclick="navigateTo('/article/_new')">创建第一篇</a></p>
-                </div>`;
-
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h1 class="page-title">所有文章</h1>
-                        <a href="#" class="btn" onclick="navigateTo('/article/_new')">新建文章</a>
-                    </div>
-                    <ul class="article-list">
-                        ${articlesHtml}
-                    </ul>
-                </div>
-            `;
-        }
-
-        async function renderArticleForm(editCode = null) {
-            const isEdit = !!editCode;
-            let article = null;
-            
-            if (isEdit) {
-                // 显示加载状态
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                `;
-                
-                article = await fetchArticle(editCode);
-                if (!article) {
-                    showError('文章未找到');
-                    navigateTo('/article');
-                    return;
-                }
-            }
-            
-            state.currentView = isEdit ? 'article-edit' : 'article-new';
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <h1 class="page-title">${isEdit ? '编辑文章' : '创建新文章'}</h1>
-                    <form id="article-form">
-                        <div class="form-group">
-                            <label class="form-label" for="article-title">标题</label>
-                            <input type="text" class="form-control" id="article-title" value="${article ? article.title : ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="article-excerpt">摘要（可选）</label>
-                            <textarea class="form-control" id="article-excerpt" rows="2">${article ? article.excerpt : ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">内容</label>
-                            <div class="editor-container">
-                                <div class="editor-tabs">
-                                    <button type="button" class="editor-tab active" onclick="switchEditorTab('edit')">编辑</button>
-                                    <button type="button" class="editor-tab" onclick="switchEditorTab('preview')">预览</button>
-                                </div>
-                                <div class="editor-content active" id="edit-tab">
-                                    <textarea class="form-control" id="article-content" rows="15" required>${article ? article.content.replace(/^#\s+.*\n\n/, '') : ''}</textarea>
-                                </div>
-                                <div class="editor-content markdown-body" id="preview-tab"></div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <button type="button" class="btn btn-secondary" onclick="navigateTo('/article')">取消</button>
-                            <button type="submit" class="btn">${isEdit ? '更新' : '发布'}</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            // 设置Markdown预览
-            document.getElementById('article-content').addEventListener('input', function() {
-                document.getElementById('preview-tab').innerHTML = 
-                    DOMPurify.sanitize(marked.parse(this.value || '暂无内容'));
-            });
-
-            // 初始预览
-            document.getElementById('preview-tab').innerHTML = 
-                DOMPurify.sanitize(marked.parse(article ? article.content.replace(/^#\s+.*\n\n/, '') : '暂无内容'));
-
-            // 表单提交处理
-            document.getElementById('article-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const title = document.getElementById('article-title').value;
-                const excerpt = document.getElementById('article-excerpt').value;
-                const content = document.getElementById('article-content').value;
-                
-                try {
-                    if (isEdit) {
-                        await updateArticle(editCode, title, content, excerpt);
-                        navigateTo(`/article/${editCode}`);
-                    } else {
-                        const newArticle = await createArticle(title, content, excerpt);
-                        navigateTo(`/article/${newArticle.code}`);
-                    }
-                } catch (error) {
-                    console.error('保存文章失败:', error);
-                }
-            });
-        }
-
-        async function renderArticleDetail(code) {
-            // 显示加载状态
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            `;
-            
-            const article = await fetchArticle(code);
-            if (!article) {
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <h1 class="page-title">文章未找到</h1>
-                        <p>您要查找的文章不存在，可能已被删除。</p>
-                        <a href="#" class="btn" onclick="navigateTo('/article')">返回文章列表</a>
-                    </div>
-                `;
-                return;
-            }
-
-            state.currentArticle = article;
-            state.currentView = 'article-detail';
-            
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <h1 class="page-title" style="margin-bottom: 0;">${article.title}</h1>
-                        <div>
-                            <button class="btn btn-secondary btn-sm" onclick="navigateTo('/article/_edit/${article.code}')">编辑</button>
-                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${article.code}')">删除</button>
-                        </div>
-                    </div>
-                    <div class="article-meta">
-                        文章ID: <span class="badge">${article.code}</span>
-                    </div>
-                    <div class="article-content markdown-body">
-                        ${DOMPurify.sanitize(marked.parse(article.content))}
-                    </div>
-                    <div class="text-right mt-3">
-                        <a href="#" class="btn btn-secondary" onclick="navigateTo('/article')">返回列表</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 文章操作函数
-        function generateCode(length = 8) {
+        // 生成随机编码（用于文章ID）
+        function generateRandomCode() {
             const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
-            for (let i = 0; i < length; i++) {
+            for (let i = 0; i < 8; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return result;
         }
 
-        function showDeleteModal(code) {
-            state.articleToDelete = code;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-            state.articleToDelete = null;
-        }
-
-        async function confirmDelete() {
-            if (state.articleToDelete) {
-                try {
-                    await deleteArticle(state.articleToDelete);
-                    
-                    // 如果当前正在查看被删除的文章，重定向到列表
-                    if (state.currentView === 'article-detail' && 
-                        state.currentArticle && 
-                        state.currentArticle.code === state.articleToDelete) {
-                        navigateTo('/article');
-                    } else {
-                        renderArticleList();
-                    }
-                } catch (error) {
-                    console.error('删除失败:', error);
-                }
-            }
-            closeModal();
-        }
-
-        // 工具函数
-        function switchEditorTab(tab) {
-            document.querySelectorAll('.editor-tab').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.editor-content').forEach(el => el.classList.remove('active'));
-            
-            if (tab === 'edit') {
-                document.querySelector('.editor-tab:first-child').classList.add('active');
-                document.getElementById('edit-tab').classList.add('active');
-            } else {
-                document.querySelector('.editor-tab:last-child').classList.add('active');
-                document.getElementById('preview-tab').classList.add('active');
-                
-                // 更新预览
-                const content = document.getElementById('article-content').value;
-                document.getElementById('preview-tab').innerHTML = 
-                    DOMPurify.sanitize(marked.parse(content || '暂无内容'));
-            }
-        }
-
-        // 全局函数
-        window.navigateTo = navigateTo;
-        window.switchEditorTab = switchEditorTab;
-        window.showDeleteModal = showDeleteModal;
-        window.closeModal = closeModal;
-        window.confirmDelete = confirmDelete;
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 这里可以添加页面初始化逻辑
+            console.log('博客系统已初始化');
+        });
     </script>
 </body>
 </html>
