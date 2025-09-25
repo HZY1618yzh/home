@@ -1,1160 +1,253 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="keywords" content="HZY HZY1618yzh HZY1618yzh的个人主页">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub博客系统 - 文章管理</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
+    <title>文章-HZY</title>
+    <script>
+        (function () {
+            document.title = 'Loding... 文章-HZY';
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.5/dist/purify.min.js"></script>
+    <link rel="icon" href="https://cdn.luogu.com.cn/upload/usericon/1394471.png" type="image/png">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
         }
-        
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
         body {
-            background-color: #f6f8fa;
-            color: #1F2328;
-            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6f7f9;
+            margin-left: 60px;
+            padding: 20px;
+            color: #333;
         }
-        
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        
-        /* 导航栏样式 */
-        .navbar {
-            background-color: #24292f;
-            color: white;
-            padding: 16px 0;
-            margin-bottom: 24px;
-        }
-        
-        .navbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 600;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .navbar-nav {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-item {
-            margin-left: 16px;
-        }
-        
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            text-decoration: underline;
-        }
-        
-        /* 主内容区域 */
-        .main-content {
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #dbe0e6;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        /* 页面标题 */
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #dbe0e6;
-        }
-        
-        /* 文章列表 */
-        .article-list {
-            list-style: none;
-        }
-        
-        .article-item {
-            padding: 16px 0;
-            border-bottom: 1px solid #dbe0e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .article-item:last-child {
-            border-bottom: none;
-        }
-        
-        .article-info {
-            flex: 1;
-        }
-        
-        .article-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0969da;
-            text-decoration: none;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        .article-title:hover {
-            text-decoration: underline;
-        }
-        
-        .article-meta {
-            font-size: 14px;
-            color: #656d76;
-            margin-bottom: 8px;
-        }
-        
-        .article-excerpt {
-            color: #1F2328;
-            margin-bottom: 8px;
-        }
-        
-        .article-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        /* 按钮样式 */
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #2da44e;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            border: 1px solid rgba(27, 31, 36, 0.15);
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .btn:hover {
-            background-color: #2c974b;
-        }
-        
-        .btn-secondary {
-            background-color: #f6f8fa;
-            color: #1F2328;
-            border: 1px solid rgba(27, 31, 36, 0.15);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #eaeef2;
-        }
-        
-        .btn-danger {
-            background-color: #cf222e;
-        }
-        
-        .btn-danger:hover {
-            background-color: #a40e26;
-        }
-        
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-        
-        /* 表单样式 */
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #0969da;
-            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
-        }
-        
-        textarea.form-control {
-            min-height: 200px;
-            resize: vertical;
-        }
-        
-        /* Markdown编辑器样式 */
-        .editor-container {
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        
-        .editor-tabs {
-            display: flex;
-            background-color: #f6f8fa;
-            border-bottom: 1px solid #dbe0e6;
-        }
-        
-        .editor-tab {
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .editor-tab.active {
-            font-weight: 600;
-            border-bottom: 2px solid #FD8C73;
-        }
-        
-        .editor-content {
-            display: none;
-            padding: 16px;
-            min-height: 300px;
-        }
-        
-        .editor-content.active {
-            display: block;
-        }
-        
-        #markdown-preview {
-            background-color: white;
-        }
-        
-        /* 文章内容样式 */
-        .article-content {
-            padding: 24px 0;
-        }
-        
-        /* 工具类 */
-        .d-none {
-            display: none;
-        }
-        
-        .text-right {
-            text-align: right;
-        }
-        
-        .mt-3 {
-            margin-top: 16px;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background-color: #eaeef2;
-            border-radius: 24px;
-            font-size: 12px;
-            color: #1F2328;
-            margin-left: 8px;
-        }
-        
-        /* 确认对话框 */
-        .modal {
-            display: none;
+
+        .sidebar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+            width: 60px;
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+            transition: width 0.3s ease;
             z-index: 1000;
         }
-        
-        .modal-content {
-            background-color: white;
-            padding: 24px;
-            border-radius: 6px;
-            width: 400px;
-            max-width: 90%;
+
+        .sidebar:hover {
+            width: 200px;
         }
-        
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 20px 0;
         }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 16px;
-        }
-        
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            padding: 40px 0;
-            color: #656d76;
-        }
-        
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #dbe0e6;
-        }
-        
-        /* 加载状态 */
-        .loading {
-            display: flex;
-            justify-content: center;
-            padding: 40px 0;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #eaeef2;
-            border-top: 4px solid #0969da;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-        }
-        
-        .alert-error {
-            background-color: #ffebe9;
-            border: 1px solid #ffcecb;
-            color: #cf222e;
-        }
-        
-        .alert-success {
-            background-color: #dafbe1;
-            border: 1px solid #ace1af;
-            color: #1a7f37;
-        }
-        
-        .github-info {
-            background-color: #f6f8fa;
-            border: 1px solid #dbe0e6;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            font-size: 14px;
+
+        .nav-item {
+            position: relative;
+            padding: 15px;
             display: flex;
             align-items: center;
+            white-space: nowrap;
+            transition: background-color 0.2s ease;
+            min-height: 24px;
+            cursor: pointer;
         }
-        
-        .github-info i {
-            margin-right: 8px;
-            color: #656d76;
+
+        .nav-item:hover {
+            background-color: #f0f2f5;
         }
-        
-        .token-container {
-            background-color: #fff8e6;
-            border: 1px solid #ffcecb;
-            border-radius: 6px;
-            padding: 16px;
-            margin-bottom: 24px;
+
+        .nav-icon {
+            min-width: 24px;
+            color: #495057;
+            font-size: 18px;
+            margin-right: 20px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-text {
+            color: #343a40;
+            font-size: 15px;
+            font-weight: 500;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+        }
+
+        .sidebar:hover .nav-text {
+            opacity: 1;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 10px 15px;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            transition: transform 0.3s;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-card a {
+            position: relative;
+            z-index: 1;
+            color: black !important;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .special-card {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ff5252;
+            box-shadow: 0 4px 20px rgba(255, 82, 82, 0.4);
+        }
+
+        .special-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 255, 255, 0.1) 10px,
+                    rgba(255, 255, 255, 0.1) 20px);
+            animation: shine 3s infinite linear;
+            z-index: 0;
+        }
+
+        .special-card a {
+            position: relative;
+            z-index: 1;
+            color: white !important;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .special-card img {
+            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .pro {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            color: black !important;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .pro a {
+            position: relative;
+            z-index: 1;
+            color: black !important;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
     </style>
 </head>
+
 <body>
-    <div class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand">返回主页</a>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('/article')">文章列表</a></li>
-                <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('/article/_new')">创建文章</a></li>
-            </ul>
+    <nav class="sidebar">
+        <ul class="sidebar-nav">
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/'">
+                <i class="nav-icon fas fa-home"></i>
+                <span class="nav-text">首页</span>
+            </li>
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/game'">
+                <i class="nav-icon fas fa-gamepad"></i>
+                <span class="nav-text">游戏</span>
+            </li>
+            <li class="nav-item" onclick="window.location='https://hzy1618yzh.qzz.io/tools'">
+                <i class="nav-icon fas fa-wrench"></i>
+                <span class="nav-text">实用工具</span>
+            </li>
+            <li class="nav-divider"></li>
+            <li class="nav-item" onclick="window.location='https://github.com/HZY1618yzh/home'">
+                <i class="nav-icon fab fa-github"></i>
+                <span class="nav-text">GitHub</span>
+            </li>
+        </ul>
+    </nav>
+    <main style="padding: 20px;">
+        <h1>文章列表</h1>
+        <div class="link-card">
+            <div class="pro"><a href="https://hzy1618yzh.qzz.io/article/qwsx">鹤维世新 —— 萧绰（zhúo）文</a></div>
         </div>
-    </div>
-
-    <div class="container">
-        <div class="github-info">
-            <i class="fab fa-github"></i>
-            正在使用 GitHub 存储文章数据: HZY1618yzh/home
-        </div>
-
-        <div id="token-check" class="token-container">
-            <h3>GitHub Token 检查</h3>
-            <p>正在验证GitHub Token权限...</p>
-            <div class="loading">
-                <div class="spinner"></div>
-            </div>
-        </div>
-
-        <div id="app">
-            <!-- 内容将由JavaScript动态渲染 -->
-        </div>
-    </div>
-
-    <!-- 删除确认模态框 -->
-    <div class="modal" id="deleteModal">
-        <div class="modal-content">
-            <h3 class="modal-title">确认删除</h3>
-            <p>您确定要删除这篇文章吗？此操作无法撤销。</p>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
-            </div>
-        </div>
-    </div>
-
+    </main>
     <script>
-        // 状态管理
-        const state = {
-            currentView: 'article-list',
-            articles: [],
-            currentArticle: null,
-            articleToDelete: null,
-            githubToken: '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',
-            repoOwner: 'HZY1618yzh',
-            repoName: 'home',
-            repoPath: 'article',
-            tokenValid: false
-        };
-
-        // 初始化
-        window.addEventListener('DOMContentLoaded', async () => {
-            // 首先验证Token
-            await validateToken();
-            
-            if (state.tokenValid) {
-                document.getElementById('token-check').style.display = 'none';
-                handleRoute();
-            } else {
-                showTokenError();
-            }
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.link-card');
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.setAttribute('tabindex', '0');
+                item.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        this.click();
+                    }
+                });
+            });
         });
-
-        // 验证GitHub Token
-        async function validateToken() {
-            try {
-                const response = await fetch(`https://api.github.com/repos/${state.repoOwner}/${state.repoName}`, {
-                    headers: {
-                        'Authorization': `token ${state.githubToken}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (response.ok) {
-                    state.tokenValid = true;
-                    return true;
-                } else {
-                    console.error('Token验证失败:', response.status, response.statusText);
-                    state.tokenValid = false;
-                    return false;
+        function wait(islod, chyt) {
+            const interval = setInterval(() => {
+                if (islod()) {
+                    document.title = chyt;
+                    clearInterval(interval);
                 }
-            } catch (error) {
-                console.error('Token验证错误:', error);
-                state.tokenValid = false;
-                return false;
-            }
+            }, 100);
         }
-
-        // 显示Token错误
-        function showTokenError() {
-            document.getElementById('token-check').innerHTML = `
-                <h3>GitHub Token 错误</h3>
-                <div class="alert alert-error">
-                    <strong>GitHub Token 验证失败！</strong>
-                    <p>可能的原因：</p>
-                    <ul>
-                        <li>Token已过期或被撤销</li>
-                        <li>Token没有足够的权限（需要repo权限）</li>
-                        <li>仓库不存在或无法访问</li>
-                        <li>网络连接问题</li>
-                    </ul>
-                    <p>请检查您的GitHub Token设置，确保它有<strong>repo</strong>权限。</p>
-                </div>
-                <div class="alert">
-                    <p>作为临时解决方案，您可以使用本地存储：</p>
-                    <button class="btn" onclick="useLocalStorage()">使用本地存储模式</button>
-                </div>
-            `;
-        }
-
-        // 使用本地存储作为备选方案
-        function useLocalStorage() {
-            state.tokenValid = false;
-            document.getElementById('token-check').style.display = 'none';
-            
-            // 从localStorage加载文章或使用示例数据
-            const localArticles = localStorage.getItem('localArticles');
-            state.articles = localArticles ? JSON.parse(localArticles) : [
-                {
-                    id: 1,
-                    code: 'a1b2c3d4',
-                    title: '欢迎使用博客系统',
-                    excerpt: '这是您的第一篇文章，可以编辑或删除它',
-                    content: '# 欢迎使用博客系统\n\n这是一个基于GitHub风格的博客系统。\n\n由于GitHub Token验证失败，目前使用本地存储模式。',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            
-            handleRoute();
-            
-            showSuccess('已切换到本地存储模式。注意：文章数据仅保存在当前浏览器中。');
-        }
-
-        // GitHub API函数
-        async function githubAPI(endpoint, options = {}) {
-            if (!state.tokenValid) {
-                throw new Error('GitHub Token验证失败，请使用本地存储模式');
-            }
-            
-            const url = `https://api.github.com${endpoint}`;
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    'Authorization': `token ${state.githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    ...options.headers
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API错误: ${response.status} ${response.statusText}`);
-            }
-            
-            return response.json();
-        }
-
-        // 获取文章列表
-        async function fetchArticles() {
-            try {
-                // 显示加载状态
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                `;
-                
-                // 如果不是有效的Token，使用本地存储
-                if (!state.tokenValid) {
-                    const localArticles = localStorage.getItem('localArticles');
-                    state.articles = localArticles ? JSON.parse(localArticles) : [];
-                    return state.articles;
-                }
-                
-                // 尝试从GitHub获取文章列表
-                let articlesData = [];
-                try {
-                    // 获取仓库内容
-                    const contents = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}`);
-                    articlesData = Array.isArray(contents) ? contents.filter(item => item.name.endsWith('.md')) : [];
-                } catch (error) {
-                    // 如果目录不存在，返回空数组
-                    if (error.message.includes('404')) {
-                        return [];
-                    }
-                    throw error;
-                }
-                
-                // 转换GitHub API响应到文章对象
-                state.articles = await Promise.all(articlesData.map(async (item) => {
-                    // 获取文件内容
-                    const fileContent = await githubAPI(item.url);
-                    const content = atob(fileContent.content.replace(/\n/g, ''));
-                    const firstLine = content.split('\n')[0];
-                    const title = firstLine.replace(/^#\s+/, '');
-                    const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
-                    
-                    return {
-                        id: item.sha,
-                        code: item.name.replace('.md', ''),
-                        title: title,
-                        excerpt: excerpt,
-                        content: content,
-                        path: item.path,
-                        sha: item.sha,
-                        createdAt: item.name.replace('.md', '')
-                    };
-                }));
-                
-                return state.articles;
-            } catch (error) {
-                console.error('获取文章列表失败:', error);
-                showError('获取文章列表失败: ' + error.message);
-                return [];
-            }
-        }
-
-        // 获取单篇文章
-        async function fetchArticle(code) {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (article) return article;
-                
-                // 如果不是有效的Token，从本地存储查找
-                if (!state.tokenValid) {
-                    const localArticles = localStorage.getItem('localArticles');
-                    const articles = localArticles ? JSON.parse(localArticles) : [];
-                    return articles.find(a => a.code === code) || null;
-                }
-                
-                // 如果不在缓存中，直接从GitHub获取
-                const fileContent = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`);
-                const content = atob(fileContent.content.replace(/\n/g, ''));
-                const firstLine = content.split('\n')[0];
-                const title = firstLine.replace(/^#\s+/, '');
-                const excerpt = content.split('\n').slice(1, 3).join(' ').substring(0, 100) + '...';
-                
-                return {
-                    id: fileContent.sha,
-                    code: code,
-                    title: title,
-                    excerpt: excerpt,
-                    content: content,
-                    path: fileContent.path,
-                    sha: fileContent.sha,
-                    createdAt: code
-                };
-            } catch (error) {
-                console.error('获取文章失败:', error);
-                showError('获取文章失败: ' + error.message);
-                return null;
-            }
-        }
-
-        // 创建文章
-        async function createArticle(title, content, excerpt = '') {
-            try {
-                // 生成唯一编码
-                const code = generateCode();
-                const filename = `${code}.md`;
-                const path = `${state.repoPath}/${filename}`;
-                
-                // 创建文章内容 - 标题作为H1，然后是内容
-                const articleContent = `# ${title}\n\n${content}`;
-                
-                // 如果不是有效的Token，使用本地存储
-                if (!state.tokenValid) {
-                    const newArticle = {
-                        id: Date.now(),
-                        code: code,
-                        title: title,
-                        excerpt: excerpt,
-                        content: articleContent,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    // 添加到本地存储
-                    const localArticles = localStorage.getItem('localArticles');
-                    const articles = localArticles ? JSON.parse(localArticles) : [];
-                    articles.unshift(newArticle);
-                    localStorage.setItem('localArticles', JSON.stringify(articles));
-                    state.articles = articles;
-                    
-                    showSuccess('文章创建成功! (本地存储模式)');
-                    return newArticle;
-                }
-                
-                // 使用GitHub API
-                const encodedContent = btoa(unescape(encodeURIComponent(articleContent)));
-                
-                // 创建文件
-                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${path}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        message: `创建文章: ${title}`,
-                        content: encodedContent
-                    })
-                });
-                
-                const newArticle = {
-                    id: response.content.sha,
-                    code: code,
-                    title: title,
-                    excerpt: excerpt,
-                    content: articleContent,
-                    path: path,
-                    sha: response.content.sha,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // 添加到文章列表
-                state.articles.unshift(newArticle);
-                
-                showSuccess('文章创建成功!');
-                return newArticle;
-            } catch (error) {
-                console.error('创建文章失败:', error);
-                showError('创建文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 更新文章
-        async function updateArticle(code, title, content, excerpt = '') {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (!article) {
-                    throw new Error('文章未找到');
-                }
-                
-                // 更新文章内容
-                const updatedContent = `# ${title}\n\n${content}`;
-                
-                // 如果不是有效的Token，使用本地存储
-                if (!state.tokenValid) {
-                    const localArticles = localStorage.getItem('localArticles');
-                    const articles = localArticles ? JSON.parse(localArticles) : [];
-                    const articleIndex = articles.findIndex(a => a.code === code);
-                    
-                    if (articleIndex !== -1) {
-                        articles[articleIndex] = {
-                            ...articles[articleIndex],
-                            title: title,
-                            excerpt: excerpt,
-                            content: updatedContent
-                        };
-                        
-                        localStorage.setItem('localArticles', JSON.stringify(articles));
-                        state.articles = articles;
-                        
-                        showSuccess('文章更新成功! (本地存储模式)');
-                        return articles[articleIndex];
-                    }
-                    
-                    throw new Error('文章未找到');
-                }
-                
-                // 使用GitHub API
-                const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
-                
-                // 更新文件
-                const response = await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        message: `更新文章: ${title}`,
-                        content: encodedContent,
-                        sha: article.sha
-                    })
-                });
-                
-                // 更新本地文章数据
-                article.title = title;
-                article.excerpt = excerpt;
-                article.content = updatedContent;
-                article.sha = response.content.sha;
-                
-                showSuccess('文章更新成功!');
-                return article;
-            } catch (error) {
-                console.error('更新文章失败:', error);
-                showError('更新文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 删除文章
-        async function deleteArticle(code) {
-            try {
-                const article = state.articles.find(a => a.code === code);
-                if (!article) {
-                    throw new Error('文章未找到');
-                }
-                
-                // 如果不是有效的Token，使用本地存储
-                if (!state.tokenValid) {
-                    const localArticles = localStorage.getItem('localArticles');
-                    const articles = localArticles ? JSON.parse(localArticles) : [];
-                    const filteredArticles = articles.filter(a => a.code !== code);
-                    
-                    localStorage.setItem('localArticles', JSON.stringify(filteredArticles));
-                    state.articles = filteredArticles;
-                    
-                    showSuccess('文章删除成功! (本地存储模式)');
-                    return true;
-                }
-                
-                // 使用GitHub API
-                await githubAPI(`/repos/${state.repoOwner}/${state.repoName}/contents/${state.repoPath}/${code}.md`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        message: `删除文章: ${article.title}`,
-                        sha: article.sha
-                    })
-                });
-                
-                // 从本地文章列表中移除
-                state.articles = state.articles.filter(a => a.code !== code);
-                
-                showSuccess('文章删除成功!');
-                return true;
-            } catch (error) {
-                console.error('删除文章失败:', error);
-                showError('删除文章失败: ' + error.message);
-                throw error;
-            }
-        }
-
-        // 显示错误消息
-        function showError(message) {
-            const app = document.getElementById('app');
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-error';
-            alert.textContent = message;
-            app.prepend(alert);
-            
-            // 3秒后自动消失
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-        }
-
-        // 显示成功消息
-        function showSuccess(message) {
-            const app = document.getElementById('app');
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.textContent = message;
-            app.prepend(alert);
-            
-            // 3秒后自动消失
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-        }
-
-        // 路由功能
-        function navigateTo(path) {
-            // 确保路径以/article开头
-            if (!path.startsWith('/article')) {
-                path = '/article' + (path.startsWith('/') ? path : '/' + path);
-            }
-            
-            window.history.pushState({}, '', path);
-            handleRoute();
-        }
-
-        function handleRoute() {
-            const path = window.location.pathname;
-            
-            if (path === '/article' || path === '/article/') {
-                renderArticleList();
-            } else if (path === '/article/_new') {
-                renderArticleForm();
-            } else if (path.startsWith('/article/_edit/')) {
-                const code = path.split('/article/_edit/')[1];
-                if (code) {
-                    renderArticleForm(code);
-                } else {
-                    renderArticleList();
-                }
-            } else if (path.startsWith('/article/')) {
-                const code = path.split('/article/')[1];
-                if (code && code !== '_new') {
-                    renderArticleDetail(code);
-                } else {
-                    renderArticleList();
-                }
-            } else {
-                renderArticleList();
-            }
-        }
-
-        // 渲染函数
-        async function renderArticleList() {
-            state.currentView = 'article-list';
-            
-            // 显示加载状态
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            `;
-            
-            // 获取文章
-            await fetchArticles();
-            
-            const articlesHtml = state.articles.length ? 
-                state.articles.map(article => `
-                    <li class="article-item">
-                        <div class="article-info">
-                            <a href="#" class="article-title" onclick="navigateTo('/article/${article.code}')">
-                                ${article.title}
-                            </a>
-                            <div class="article-meta">
-                                文章ID: <span class="badge">${article.code}</span>
-                                ${!state.tokenValid ? '<span style="color:#e67700;">(本地存储)</span>' : ''}
-                            </div>
-                            <div class="article-excerpt">${article.excerpt || '暂无摘要'}</div>
-                        </div>
-                        <div class="article-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="navigateTo('/article/_edit/${article.code}')">编辑</button>
-                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${article.code}')">删除</button>
-                        </div>
-                    </li>
-                `).join('') : 
-                `<div class="empty-state">
-                    <i class="fas fa-file-alt"></i>
-                    <p>暂无文章，<a href="#" onclick="navigateTo('/article/_new')">创建第一篇</a></p>
-                </div>`;
-
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h1 class="page-title">所有文章</h1>
-                        <a href="#" class="btn" onclick="navigateTo('/article/_new')">新建文章</a>
-                    </div>
-                    ${!state.tokenValid ? `
-                    <div class="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        当前使用本地存储模式，文章数据仅保存在当前浏览器中。
-                    </div>
-                    ` : ''}
-                    <ul class="article-list">
-                        ${articlesHtml}
-                    </ul>
-                </div>
-            `;
-        }
-
-        async function renderArticleForm(editCode = null) {
-            const isEdit = !!editCode;
-            let article = null;
-            
-            if (isEdit) {
-                // 显示加载状态
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                `;
-                
-                article = await fetchArticle(editCode);
-                if (!article) {
-                    showError('文章未找到');
-                    navigateTo('/article');
-                    return;
-                }
-            }
-            
-            state.currentView = isEdit ? 'article-edit' : 'article-new';
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <h1 class="page-title">${isEdit ? '编辑文章' : '创建新文章'}</h1>
-                    ${!state.tokenValid ? `
-                    <div class="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        当前使用本地存储模式，文章数据仅保存在当前浏览器中。
-                    </div>
-                    ` : ''}
-                    <form id="article-form">
-                        <div class="form-group">
-                            <label class="form-label" for="article-title">标题</label>
-                            <input type="text" class="form-control" id="article-title" value="${article ? article.title : ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="article-excerpt">摘要（可选）</label>
-                            <textarea class="form-control" id="article-excerpt" rows="2">${article ? article.excerpt : ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">内容</label>
-                            <div class="editor-container">
-                                <div class="editor-tabs">
-                                    <button type="button" class="editor-tab active" onclick="switchEditorTab('edit')">编辑</button>
-                                    <button type="button" class="editor-tab" onclick="switchEditorTab('preview')">预览</button>
-                                </div>
-                                <div class="editor-content active" id="edit-tab">
-                                    <textarea class="form-control" id="article-content" rows="15" required>${article ? article.content.replace(/^#\s+.*\n\n/, '') : ''}</textarea>
-                                </div>
-                                <div class="editor-content markdown-body" id="preview-tab"></div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <button type="button" class="btn btn-secondary" onclick="navigateTo('/article')">取消</button>
-                            <button type="submit" class="btn">${isEdit ? '更新' : '发布'}</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            // 设置Markdown预览
-            document.getElementById('article-content').addEventListener('input', function() {
-                document.getElementById('preview-tab').innerHTML = 
-                    DOMPurify.sanitize(marked.parse(this.value || '暂无内容'));
-            });
-
-            // 初始预览
-            document.getElementById('preview-tab').innerHTML = 
-                DOMPurify.sanitize(marked.parse(article ? article.content.replace(/^#\s+.*\n\n/, '') : '暂无内容'));
-
-            // 表单提交处理
-            document.getElementById('article-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const title = document.getElementById('article-title').value;
-                const excerpt = document.getElementById('article-excerpt').value;
-                const content = document.getElementById('article-content').value;
-                
-                try {
-                    if (isEdit) {
-                        await updateArticle(editCode, title, content, excerpt);
-                        navigateTo(`/article/${editCode}`);
-                    } else {
-                        const newArticle = await createArticle(title, content, excerpt);
-                        navigateTo(`/article/${newArticle.code}`);
-                    }
-                } catch (error) {
-                    console.error('保存文章失败:', error);
-                }
-            });
-        }
-
-        async function renderArticleDetail(code) {
-            // 显示加载状态
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            `;
-            
-            const article = await fetchArticle(code);
-            if (!article) {
-                document.getElementById('app').innerHTML = `
-                    <div class="main-content">
-                        <h1 class="page-title">文章未找到</h1>
-                        <p>您要查找的文章不存在，可能已被删除。</p>
-                        <a href="#" class="btn" onclick="navigateTo('/article')">返回文章列表</a>
-                    </div>
-                `;
-                return;
-            }
-
-            state.currentArticle = article;
-            state.currentView = 'article-detail';
-            
-            document.getElementById('app').innerHTML = `
-                <div class="main-content">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <h1 class="page-title" style="margin-bottom: 0;">${article.title}</h1>
-                        <div>
-                            <button class="btn btn-secondary btn-sm" onclick="navigateTo('/article/_edit/${article.code}')">编辑</button>
-                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${article.code}')">删除</button>
-                        </div>
-                    </div>
-                    <div class="article-meta">
-                        文章ID: <span class="badge">${article.code}</span>
-                        ${!state.tokenValid ? '<span style="color:#e67700;">(本地存储)</span>' : ''}
-                    </div>
-                    <div class="article-content markdown-body">
-                        ${DOMPurify.sanitize(marked.parse(article.content))}
-                    </div>
-                    <div class="text-right mt-3">
-                        <a href="#" class="btn btn-secondary" onclick="navigateTo('/article')">返回列表</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 文章操作函数
-        function generateCode(length = 8) {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function showDeleteModal(code) {
-            state.articleToDelete = code;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-            state.articleToDelete = null;
-        }
-
-        async function confirmDelete() {
-            if (state.articleToDelete) {
-                try {
-                    await deleteArticle(state.articleToDelete);
-                    
-                    // 如果当前正在查看被删除的文章，重定向到列表
-                    if (state.currentView === 'article-detail' && 
-                        state.currentArticle && 
-                        state.currentArticle.code === state.articleToDelete) {
-                        navigateTo('/article');
-                    } else {
-                        renderArticleList();
-                    }
-                } catch (error) {
-                    console.error('删除失败:', error);
-                }
-            }
-            closeModal();
-        }
-
-        // 工具函数
-        function switchEditorTab(tab) {
-            document.querySelectorAll('.editor-tab').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.editor-content').forEach(el => el.classList.remove('active'));
-            
-            if (tab === 'edit') {
-                document.querySelector('.editor-tab:first-child').classList.add('active');
-                document.getElementById('edit-tab').classList.add('active');
-            } else {
-                document.querySelector('.editor-tab:last-child').classList.add('active');
-                document.getElementById('preview-tab').classList.add('active');
-                
-                // 更新预览
-                const content = document.getElementById('article-content').value;
-                document.getElementById('preview-tab').innerHTML = 
-                    DOMPurify.sanitize(marked.parse(content || '暂无内容'));
-            }
-        }
-
-        // 全局函数
-        window.navigateTo = navigateTo;
-        window.switchEditorTab = switchEditorTab;
-        window.showDeleteModal = showDeleteModal;
-        window.closeModal = closeModal;
-        window.confirmDelete = confirmDelete;
-        window.useLocalStorage = useLocalStorage;
+        wait(
+            () => document.readyState === 'complete',
+            '文章-HZY'
+        );
     </script>
 </body>
+
 </html>
