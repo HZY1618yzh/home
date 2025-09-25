@@ -6,6 +6,9 @@
     <meta name="keywords" content="HZY HZY1618yzh HZY1618yzh的个人主页">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主页-HZY</title>
+    <script>
+        document.title = "loading... 主页-HZY";
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://cdn.luogu.com.cn/upload/usericon/1394471.png" type="image/png">
     <style>
@@ -220,7 +223,8 @@
         <div class="link-card">
             <h2>宣传/广告</h2>
             <div class="pro"><span id="jinrishici-sentence">正在加载今日诗词....</span>
-        <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script></div>
+                <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+            </div>
             <div class="pro"><a href="https://www.luogu.com.cn/discuss/525529">不可以总司令</a></div>
             <div class="pro">稻花香里说丰年，听取 WA 声一片 ——辛弃疾 《西江月·夜行黄沙道中》</div>
             <div>
@@ -248,14 +252,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const cards = document.querySelectorAll('.link-card');
             const navItems = document.querySelectorAll('.nav-item');
-            cards.forEach(card => {
-                card.addEventListener('click', function () {
-                    const link = this.querySelector('a');
-                    if (link) {
-                        window.location.href = link.href;
-                    }
-                });
-            });
             navItems.forEach(item => {
                 item.setAttribute('tabindex', '0');
                 item.addEventListener('keypress', function (e) {
@@ -269,6 +265,9 @@
             e.stopPropagation();
             document.getElementById('pro').innerHTML = '<div class="pro">绿水青山就是金山银山 ——习近平</div><div class="center"><p>没有更多了</p></div>';
         });
+        window.onload = function () {
+            document.title = '主页-HZY';
+        };
     </script>
 </body>
 
