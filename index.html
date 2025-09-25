@@ -6,6 +6,11 @@
     <meta name="keywords" content="HZY HZY1618yzh HZY1618yzh的个人主页">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主页-HZY</title>
+    <script>
+        (function () {
+            document.title = 'Loding... 主页-HZY';
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://cdn.luogu.com.cn/upload/usericon/1394471.png" type="image/png">
     <style>
@@ -262,21 +267,16 @@
             e.stopPropagation();
             document.getElementById('pro').innerHTML = '<div class="pro">绿水青山就是金山银山 ——习近平</div><div class="center"><p>没有更多了</p></div>';
         });
-        (function () {
-            document.title = 'Loding... 主页-HZY';
-        })();
         function wait(islod, chyt) {
             const interval = setInterval(() => {
                 if (islod()) {
                     document.title = chyt;
                     clearInterval(interval);
                 }
-            }, 100); // 每100毫秒检查一次
+            }, 100);
         }
-
-        // 使用示例
         wait(
-            () => document.readyState === 'complete', // 等待页面加载完成
+            () => document.readyState === 'complete',
             '主页-HZY'
         );
     </script>
