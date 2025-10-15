@@ -3458,8 +3458,17 @@ Save breed, to brave him when he takes thee hence.
         }
         wait(
             () => document.readyState === 'complete',
-            '文章-HZY'
+            '三体-云天明传-HZY'
         );
+        window.onload = function() {
+			if (localStorage.getItem('scrollPosition')) {
+				var scrollPosition = JSON.parse(localStorage.getItem('scrollPosition'));
+				window.scrollTo(scrollPosition.x, scrollPosition.y);
+			}
+		};
+		window.onscroll = function() {
+			localStorage.setItem('scrollPosition', JSON.stringify({x: window.scrollX, y: window.scrollY}));
+		};
     </script>
 </body>
 
