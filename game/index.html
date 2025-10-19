@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游戏-HZY</title>
+    <script>
+        document.title = 'Loding... 游戏-HZY';
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://cdn.luogu.com.cn/upload/usericon/1394471.png" type="image/png">
     <style>
@@ -251,6 +254,18 @@
                 });
             });
         });
+        function wait(islod, chyt) {
+            const interval = setInterval(() => {
+                if (islod()) {
+                    document.title = chyt;
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        wait(
+            () => document.readyState === 'complete',
+            '游戏-HZY'
+        );
     </script>
 </body>
 
