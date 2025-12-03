@@ -1,7 +1,0 @@
-ErrorDocument 404 /article/404.html
-
-RewriteEngine On
-RewriteBase /article/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ 404.html [L]
