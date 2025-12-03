@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Create auth.js with environment variables
+      run: |
+        cat > article/js/auth.js << 'EOF'
+        // auth.js - 自动生成文件
+        // 此文件在部署时自动生成，包含环境变量
+        
+        window.supabaseConfig = {
+            url: '${{ secrets.SUPABASE_URL }}',
+            anonKey: '${{ secrets.SUPABASE_ANON_KEY }}',
+            adminPassword: '${{ secrets.ADMIN_PASSWORD }}'
+        };
+        
+        // 初始化Supabase客户端
+        window.supabase = supabase.createClient(
+            window.supabaseConfig.url,
+            window.supabaseConfig.anonKey
+        );
+        
+        // 密码验证函数
+        window.verifyPassword = function(password) {
+            return password === window.supabaseConfig.adminPassword;
+        };
+        EOF
+        
+        echo "✅ auth.js 已创建"
