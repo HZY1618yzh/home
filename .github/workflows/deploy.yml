@@ -9,31 +9,77 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Replace secrets in auth.js
+    - name: Debug - Show directory structure
+      run: |
+        echo "当前目录结构:"
+        find . -type f -name "*.js" -o -name "*.html" | head -20
+        echo ""
+        echo "article目录:"
+        ls -la article/ || echo "没有article目录"
+        
+    - name: Create auth.js from template
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        ADMIN_PASS: ${{ secrets.ADMIN_PASSWORD }}
+        SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
       run: |
-        # 复制模板文件
-        cp auth.template.js auth.js
+        echo "开始生成 auth.js..."
         
-        # 使用sed替换占位符
-        sed -i "s|__SUPABASE_URL__|$SUPABASE_URL|g" auth.js
-        sed -i "s|__SUPABASE_ANON_KEY__|$SUPABASE_KEY|g" auth.js
-        sed -i "s|__ADMIN_PASSWORD__|$ADMIN_PASS|g" auth.js
-        
-        # 移动到正确目录
+        # 确保目标目录存在
         mkdir -p article/js
-        mv auth.js article/js/
+        
+        # 读取模板文件
+        if [ -f "auth.template.js" ]; then
+          echo "找到模板文件"
+          CONTENT=$(cat auth.template.js)
+        else
+          echo "使用内联模板"
+          CONTENT='window.supabaseConfig = {
+    url: "{{SUPABASE_URL}}",
+    anonKey: "{{SUPABASE_ANON_KEY}}",
+    adminPassword: "{{ADMIN_PASSWORD}}"
+};
+
+window.supabase = supabase.createClient(
+    window.supabaseConfig.url,
+    window.supabaseConfig.anonKey
+);
+
+window.verifyPassword = function(password) {
+    return password === window.supabaseConfig.adminPassword;
+};'
+        fi
+        
+        # 替换占位符
+        CONTENT="${CONTENT//'{{SUPABASE_URL}}'/$SUPABASE_URL}"
+        CONTENT="${CONTENT//'{{SUPABASE_ANON_KEY}}'/$SUPABASE_ANON_KEY}"
+        CONTENT="${CONTENT//'{{ADMIN_PASSWORD}}'/$ADMIN_PASSWORD}"
+        
+        # 写入文件
+        echo "$CONTENT" > article/js/auth.js
         
         echo "✅ auth.js 已生成"
+        echo "文件大小: $(wc -c < article/js/auth.js) 字节"
         
-    - name: Deploy
+    - name: Verify auth.js
+      run: |
+        echo "验证生成的 auth.js:"
+        if [ -f "article/js/auth.js" ]; then
+          # 只显示前几行（隐藏敏感信息）
+          head -n 5 article/js/auth.js
+          echo "..."
+          echo "文件存在，大小: $(wc -l < article/js/auth.js) 行"
+        else
+          echo "❌ auth.js 未生成！"
+          exit 1
+        fi
+        
+    - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
+        publish_branch: gh-pages
