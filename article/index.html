@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +17,7 @@
             z-index: 1000;
             display: none;
         }
-
+        
         .modal-overlay {
             position: absolute;
             top: 0;
@@ -27,7 +26,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
         }
-
+        
         .modal-content {
             position: absolute;
             top: 50%;
@@ -40,7 +39,7 @@
             max-width: 400px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
-
+        
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -49,12 +48,12 @@
             padding-bottom: 1rem;
             border-bottom: 1px solid #eee;
         }
-
+        
         .modal-header h3 {
             margin: 0;
             color: #333;
         }
-
+        
         .modal-close {
             background: none;
             border: none;
@@ -63,16 +62,16 @@
             color: #666;
             line-height: 1;
         }
-
+        
         .modal-body {
             margin-bottom: 1.5rem;
         }
-
+        
         .modal-body p {
             margin-bottom: 1rem;
             color: #555;
         }
-
+        
         #modalPassword {
             width: 100%;
             padding: 0.75rem;
@@ -81,17 +80,17 @@
             font-size: 1rem;
             margin-bottom: 0.5rem;
         }
-
+        
         .modal-message {
             margin-top: 0.5rem;
             font-size: 0.9rem;
             min-height: 1.2rem;
         }
-
+        
         .modal-message.error {
             color: #dc3545;
         }
-
+        
         .modal-footer {
             display: flex;
             gap: 1rem;
@@ -99,7 +98,6 @@
         }
     </style>
 </head>
-
 <body>
     <div id="app">
         <div class="loading">
@@ -118,7 +116,8 @@
             </div>
             <div class="modal-body">
                 <p>请输入管理员密码：</p>
-                <input type="password" id="modalPassword" placeholder="输入密码" autocomplete="current-password">
+                <input type="password" id="modalPassword" 
+                       placeholder="输入密码" autocomplete="current-password">
                 <div id="modalMessage" class="modal-message"></div>
             </div>
             <div class="modal-footer">
@@ -131,7 +130,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-
+    
     <script>
         // 文章系统主逻辑
         class ArticleSystem {
@@ -142,28 +141,28 @@
                 this.currentArticle = null;
                 this.init();
             }
-
+            
             init() {
                 this.parseUrl();
                 this.initPasswordModal();
                 this.route();
+                // 监听hash变化
                 window.addEventListener('hashchange', () => {
                     this.parseUrl();
                     this.route();
                 });
             }
-
-            // 解析URL
+            
+            // 解析hash路由
             parseUrl() {
-                const hash = window.location.hash.substring(1); // 去掉#号
-
+                const hash = window.location.hash.substring(1);
+                
                 if (!hash) {
-                    // 如果没有hash，可能是直接访问的页面
                     this.articleId = null;
                     this.action = 'view';
                     return;
                 }
-
+                
                 // 检查是否是编辑模式
                 if (hash.endsWith('/edit')) {
                     this.action = 'edit';
@@ -172,13 +171,13 @@
                     this.action = 'view';
                     this.articleId = hash;
                 }
-
-                // 验证文章ID格式（8位字母数字）
+                
+                // 验证文章ID格式
                 if (this.articleId && !/^[a-zA-Z0-9]{8}$/.test(this.articleId)) {
                     this.articleId = null;
                 }
             }
-
+            
             // 初始化密码弹窗
             initPasswordModal() {
                 const modal = document.getElementById('passwordModal');
@@ -186,62 +185,62 @@
                 const cancelBtn = modal.querySelector('.modal-cancel');
                 const confirmBtn = modal.querySelector('.modal-confirm');
                 const overlay = modal.querySelector('.modal-overlay');
-
+                
                 const closeModal = () => {
                     modal.style.display = 'none';
                     document.getElementById('modalPassword').value = '';
                     document.getElementById('modalMessage').textContent = '';
                 };
-
+                
                 closeBtn.addEventListener('click', closeModal);
                 cancelBtn.addEventListener('click', closeModal);
                 overlay.addEventListener('click', closeModal);
-
+                
                 confirmBtn.addEventListener('click', () => {
                     this.confirmPassword();
                 });
-
+                
                 document.getElementById('modalPassword').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         this.confirmPassword();
                     }
                 });
-
+                
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && modal.style.display !== 'none') {
                         closeModal();
                     }
                 });
-
+                
                 this.passwordModal = modal;
                 this.passwordCallback = null;
             }
-
+            
             // 显示密码弹窗
             showPasswordModal(callback) {
                 this.passwordCallback = callback;
                 this.passwordModal.style.display = 'block';
                 document.getElementById('modalPassword').focus();
             }
-
+            
             // 验证密码
             confirmPassword() {
                 const password = document.getElementById('modalPassword').value;
                 const messageEl = document.getElementById('modalMessage');
-
+                
                 if (!password) {
                     messageEl.textContent = '请输入密码';
                     messageEl.className = 'modal-message error';
                     return;
                 }
-
+                
                 if (window.verifyPassword && window.verifyPassword(password)) {
                     messageEl.textContent = '';
                     messageEl.className = 'modal-message';
-
+                    
                     this.passwordModal.style.display = 'none';
                     document.getElementById('modalPassword').value = '';
-
+                    
                     if (this.passwordCallback) {
                         this.passwordCallback(true);
                     }
@@ -250,27 +249,38 @@
                     messageEl.className = 'modal-message error';
                     document.getElementById('modalPassword').value = '';
                     document.getElementById('modalPassword').focus();
-
+                    
                     if (this.passwordCallback) {
                         this.passwordCallback(false);
                     }
                 }
             }
-
+            
             // 路由分发
             async route() {
+                // 如果文章ID为空，检查是否有特殊路由
                 if (!this.articleId) {
-                    this.show404();
-                    return;
+                    const hash = window.location.hash.substring(1);
+                    
+                    switch(hash) {
+                        case '':
+                        case '/':
+                            // 首页
+                            this.showHomePage();
+                            return;
+                        default:
+                            this.show404();
+                            return;
+                    }
                 }
-
+                
                 if (this.action === 'edit') {
                     await this.showEditPage();
                 } else {
                     await this.showArticle();
                 }
             }
-
+            
             // 显示404页面
             show404() {
                 this.container.innerHTML = `
@@ -294,41 +304,162 @@
                     </div>
                 `;
             }
-
+            
+            // 显示首页
+            showHomePage() {
+                this.container.innerHTML = `
+                    <div class="home-container">
+                        <nav class="article-nav">
+                            <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
+                            <a href="new.html"><i class="fas fa-plus"></i> 新建文章</a>
+                        </nav>
+                        
+                        <div class="home-content">
+                            <h1><i class="fas fa-newspaper"></i> 文章系统</h1>
+                            <p class="subtitle">一个简洁的文章发布和管理系统</p>
+                            
+                            <div class="home-actions">
+                                <a href="list.html" class="btn btn-primary btn-large">
+                                    <i class="fas fa-list"></i> 查看所有文章
+                                </a>
+                                <a href="new.html" class="btn btn-secondary btn-large">
+                                    <i class="fas fa-plus"></i> 创建新文章
+                                </a>
+                            </div>
+                            
+                            <div class="home-features">
+                                <div class="feature">
+                                    <i class="fas fa-lock"></i>
+                                    <h3>安全访问</h3>
+                                    <p>密码保护的管理功能</p>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-edit"></i>
+                                    <h3>Markdown支持</h3>
+                                    <p>支持Markdown格式编辑</p>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-chart-line"></i>
+                                    <h3>统计功能</h3>
+                                    <p>查看文章浏览统计</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    .home-container {
+                        max-width: 1200px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    
+                    .home-content {
+                        text-align: center;
+                        padding: 60px 20px;
+                        background: white;
+                        border-radius: 20px;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+                        margin-top: 30px;
+                    }
+                    
+                    .home-content h1 {
+                        font-size: 48px;
+                        margin-bottom: 10px;
+                        color: #333;
+                    }
+                    
+                    .subtitle {
+                        font-size: 18px;
+                        color: #666;
+                        margin-bottom: 40px;
+                    }
+                    
+                    .btn-large {
+                        padding: 15px 30px;
+                        font-size: 18px;
+                        margin: 0 10px;
+                    }
+                    
+                    .home-actions {
+                        margin-bottom: 60px;
+                    }
+                    
+                    .home-features {
+                        display: flex;
+                        justify-content: center;
+                        gap: 40px;
+                        flex-wrap: wrap;
+                    }
+                    
+                    .feature {
+                        flex: 1;
+                        min-width: 250px;
+                        padding: 30px;
+                        background: #f8f9fa;
+                        border-radius: 15px;
+                        transition: transform 0.3s ease;
+                    }
+                    
+                    .feature:hover {
+                        transform: translateY(-10px);
+                    }
+                    
+                    .feature i {
+                        font-size: 48px;
+                        color: #667eea;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .feature h3 {
+                        margin: 15px 0 10px;
+                        color: #333;
+                    }
+                    
+                    .feature p {
+                        color: #666;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
             // 显示文章
-            // 修改后的 showArticle 方法
             async showArticle() {
                 try {
-                    // 先获取当前文章以获取当前浏览次数
+                    // 先获取当前文章的浏览次数
                     const { data: articleData, error: fetchError } = await supabase
                         .from('articles')
                         .select('view_count')
                         .eq('id', this.articleId)
                         .single();
-
+                    
+                    // 增加浏览次数
                     if (!fetchError && articleData) {
-                        // 更新浏览次数（手动增加）
-                        const newViewCount = (articleData.view_count || 0) + 1;
+                        const currentViewCount = articleData.view_count || 0;
+                        const newViewCount = currentViewCount + 1;
+                        
                         await supabase
                             .from('articles')
-                            .update({
+                            .update({ 
                                 view_count: newViewCount,
                                 updated_at: new Date().toISOString()
                             })
                             .eq('id', this.articleId);
                     }
-
+                    
                     // 获取完整的文章数据
                     const { data: article, error } = await supabase
                         .from('articles')
                         .select('*')
                         .eq('id', this.articleId)
                         .single();
-
+                    
                     if (error || !article) throw new Error('文章不存在');
-
+                    
                     this.currentArticle = article;
-
+                    
                     const date = new Date(article.created_at);
                     const formattedDate = date.toLocaleDateString('zh-CN', {
                         year: 'numeric',
@@ -337,70 +468,67 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-
+                    
                     const updateDate = new Date(article.updated_at);
-                    const updateInfo = updateDate > date ?
+                    const updateInfo = updateDate > date ? 
                         `（最后更新：${updateDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）` : '';
-
+                    
                     this.container.innerHTML = `
-            <nav class="article-nav">
-                <a href="#list"><i class="fas fa-list"></i> 文章列表</a>
-                <a href="#new"><i class="fas fa-plus"></i> 新建文章</a>
-                <a href="#${article.id}/edit"><i class="fas fa-edit"></i> 编辑本文</a>
-                <a href="../" class="home-link"><i class="fas fa-home"></i> 返回主页</a>
-            </nav>
-            
-            <article class="article-content">
-                <header class="article-header">
-                    <h1>${article.title}</h1>
-                    <div class="article-meta">
-                        <span><i class="far fa-calendar"></i> ${formattedDate} ${updateInfo}</span>
-                        <span><i class="far fa-eye"></i> ${article.view_count || 0} 次浏览</span>
-                    </div>
-                </header>
-                
-                <div class="article-body">
-                    ${this.renderMarkdown(article.content)}
-                </div>
-                
-                <footer class="article-footer">
-                    <div class="article-actions">
-                        <a href="#${article.id}/edit" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑文章</a>
-                        <a href="#list" class="btn btn-list"><i class="fas fa-list"></i> 更多文章</a>
-                    </div>
-                </footer>
-            </article>
-            
-            <div id="message" class="message"></div>
-        `;
-
+                        <nav class="article-nav">
+                            <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
+                            <a href="new.html"><i class="fas fa-plus"></i> 新建文章</a>
+                            <a href="?action=edit#${article.id}"><i class="fas fa-edit"></i> 编辑本文</a>
+                            <a href="../" class="home-link"><i class="fas fa-home"></i> 返回主页</a>
+                        </nav>
+                        
+                        <article class="article-content">
+                            <header class="article-header">
+                                <h1>${article.title}</h1>
+                                <div class="article-meta">
+                                    <span><i class="far fa-calendar"></i> ${formattedDate} ${updateInfo}</span>
+                                    <span><i class="far fa-eye"></i> ${article.view_count || 0} 次浏览</span>
+                                </div>
+                            </header>
+                            
+                            <div class="article-body">
+                                ${this.renderMarkdown(article.content)}
+                            </div>
+                            
+                            <footer class="article-footer">
+                                <div class="article-actions">
+                                    <a href="?action=edit#${article.id}" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑文章</a>
+                                    <a href="list.html" class="btn btn-list"><i class="fas fa-list"></i> 更多文章</a>
+                                </div>
+                            </footer>
+                        </article>
+                        
+                        <div id="message" class="message"></div>
+                    `;
+                    
                     document.title = `${article.title} - 文章系统`;
-
+                    
                 } catch (error) {
                     console.error('加载文章失败:', error);
                     this.showError(`文章加载失败：${error.message}`);
                 }
             }
-
+            
             // 显示编辑页面
             async showEditPage() {
                 try {
-                    if (window.location.hash !== `#${this.articleId}/edit`) {
-                        window.history.replaceState(null, '', `#${this.articleId}/edit`);
-                    }
                     const { data: article, error } = await supabase
                         .from('articles')
                         .select('*')
                         .eq('id', this.articleId)
                         .single();
-
+                    
                     if (error || !article) throw new Error('文章不存在');
-
+                    
                     this.currentArticle = article;
-
+                    
                     this.container.innerHTML = `
                         <nav class="article-nav">
-                            <a href="${this.articleId}"><i class="fas fa-arrow-left"></i> 返回文章</a>
+                            <a href="#${this.articleId}"><i class="fas fa-arrow-left"></i> 返回文章</a>
                             <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
                             <a href="../"><i class="fas fa-home"></i> 返回主页</a>
                         </nav>
@@ -427,7 +555,7 @@
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-save"></i> 保存修改
                                     </button>
-                                    <a href="${this.articleId}" class="btn btn-secondary">
+                                    <a href="#${this.articleId}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> 取消
                                     </a>
                                     <button type="button" onclick="articleSystem.deleteArticle()" class="btn btn-danger">
@@ -437,18 +565,18 @@
                             </form>
                         </div>
                     `;
-
+                    
                     document.getElementById('editForm').addEventListener('submit', (e) => {
                         e.preventDefault();
-
+                        
                         const title = document.getElementById('title').value.trim();
                         const content = document.getElementById('content').value.trim();
-
+                        
                         if (!title || !content) {
                             this.showMessage('请填写所有字段', 'error');
                             return;
                         }
-
+                        
                         // 弹出密码验证
                         this.showPasswordModal(async (success) => {
                             if (success) {
@@ -456,12 +584,13 @@
                             }
                         });
                     });
-
+                    
                 } catch (error) {
+                    console.error('加载编辑页面失败:', error);
                     this.showError(`文章加载失败：${error.message}`);
                 }
             }
-
+            
             // 更新文章
             async updateArticle(title, content) {
                 try {
@@ -473,26 +602,27 @@
                             updated_at: new Date().toISOString()
                         })
                         .eq('id', this.articleId);
-
+                    
                     if (error) throw error;
-
+                    
                     this.showMessage('<i class="fas fa-check-circle"></i> 文章更新成功！正在跳转...', 'success');
-
+                    
                     setTimeout(() => {
-                        window.location.hash = this.articleId; // 修改为hash跳转
+                        window.location.href = `#${this.articleId}`;
                     }, 1500);
-
+                    
                 } catch (error) {
+                    console.error('更新文章失败:', error);
                     this.showMessage(`更新失败: ${error.message}`, 'error');
                 }
             }
-
+            
             // 删除文章
             async deleteArticle() {
                 if (!confirm('确定要删除这篇文章吗？此操作不可撤销！')) {
                     return;
                 }
-
+                
                 this.showPasswordModal(async (success) => {
                     if (success) {
                         try {
@@ -500,23 +630,24 @@
                                 .from('articles')
                                 .delete()
                                 .eq('id', this.articleId);
-
+                            
                             if (error) throw error;
-
+                            
                             alert('文章已删除！');
                             window.location.href = 'list.html';
-
+                            
                         } catch (error) {
+                            console.error('删除文章失败:', error);
                             alert(`删除失败: ${error.message}`);
                         }
                     }
                 });
             }
-
+            
             // 渲染Markdown
             renderMarkdown(text) {
                 if (!text) return '';
-
+                
                 return text
                     .replace(/^### (.*$)/gm, '<h3>$1</h3>')
                     .replace(/^## (.*$)/gm, '<h2>$1</h2>')
@@ -529,21 +660,21 @@
                     .replace(/\n/g, '<br>')
                     .replace(/^\s*$/gm, '<br>');
             }
-
+            
             // 显示消息
             showMessage(text, type = 'info') {
                 const messageEl = document.getElementById('message');
                 if (!messageEl) return;
-
+                
                 messageEl.innerHTML = text;
                 messageEl.className = `message message-${type}`;
                 messageEl.style.display = 'block';
-
+                
                 setTimeout(() => {
                     messageEl.style.display = 'none';
                 }, type === 'success' ? 3000 : 5000);
             }
-
+            
             // 显示错误
             showError(message) {
                 this.container.innerHTML = `
@@ -568,10 +699,20 @@
                 `;
             }
         }
-
+        
         // 初始化文章系统
-        window.articleSystem = new ArticleSystem('app');
+        document.addEventListener('DOMContentLoaded', () => {
+            window.articleSystem = new ArticleSystem('app');
+            
+            // 处理页面加载时的重定向
+            const path = window.location.pathname;
+            const hash = window.location.hash.substring(1);
+            
+            // 如果直接访问index.html且有hash，重定向到对应的路由
+            if (path.includes('index.html') && hash) {
+                window.location.href = hash;
+            }
+        });
     </script>
 </body>
-
 </html>

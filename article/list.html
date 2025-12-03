@@ -587,7 +587,7 @@
         function showEditModal(articleId) {
             showPasswordModal(async (success) => {
                 if (success) {
-                    window.location.href = `${articleId}?action=edit`;
+                    window.location.href = `?action=edit#${articleId}`;
                 }
             });
         }
