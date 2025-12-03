@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,98 +7,20 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 密码弹窗样式 */
-        .password-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            display: none;
-        }
-
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            color: #333;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-            line-height: 1;
-        }
-
-        .modal-body {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-body p {
-            margin-bottom: 1rem;
-            color: #555;
-        }
-
-        #modalPassword {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-message {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            min-height: 1.2rem;
-        }
-
-        .modal-message.error {
-            color: #dc3545;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
+        .password-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+        .modal-header h3 { margin: 0; color: #333; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; line-height: 1; }
+        .modal-body { margin-bottom: 1.5rem; }
+        .modal-body p { margin-bottom: 1rem; color: #555; }
+        #modalPassword { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 0.5rem; }
+        .modal-message { margin-top: 0.5rem; font-size: 0.9rem; min-height: 1.2rem; }
+        .modal-message.error { color: #dc3545; }
+        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
     </style>
 </head>
-
 <body>
     <div id="app">
         <div class="loading">
@@ -108,7 +29,6 @@
         </div>
     </div>
 
-    <!-- 密码弹窗 -->
     <div id="passwordModal" class="password-modal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
@@ -131,9 +51,24 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-
+    
     <script>
-        // 文章系统主逻辑
+        // Markdown渲染函数
+        function renderMarkdown(text) {
+            if (!text) return '';
+            return text
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^\s*$/gm, '<br>');
+        }
+
         class ArticleSystem {
             constructor(containerId) {
                 this.container = document.getElementById(containerId);
@@ -142,171 +77,345 @@
                 this.currentArticle = null;
                 this.init();
             }
-
+            
             init() {
+                console.log('初始化文章系统');
                 this.parseUrl();
                 this.initPasswordModal();
                 this.route();
-                // 监听hash变化
                 window.addEventListener('hashchange', () => {
                     this.parseUrl();
                     this.route();
                 });
             }
-
-            // 解析hash路由
+            
             parseUrl() {
-                const hash = window.location.hash.substring(1);
-
-                if (!hash) {
-                    this.articleId = null;
-                    this.action = 'view';
-                    return;
-                }
-
-                // 检查是否是编辑模式
-                if (hash.endsWith('/edit')) {
+                const url = new URL(window.location.href);
+                const hash = url.hash.substring(1);
+                const searchParams = url.searchParams;
+                
+                console.log('解析URL:', {hash, search: url.search});
+                
+                // 处理编辑模式
+                if (searchParams.get('action') === 'edit') {
                     this.action = 'edit';
-                    this.articleId = hash.replace('/edit', '');
-                } else {
+                    this.articleId = hash;
+                } else if (hash) {
                     this.action = 'view';
                     this.articleId = hash;
+                } else {
+                    this.articleId = null;
+                    this.action = 'view';
                 }
-
+                
                 // 验证文章ID格式
                 if (this.articleId && !/^[a-zA-Z0-9]{8}$/.test(this.articleId)) {
                     this.articleId = null;
                 }
+                
+                console.log('解析结果:', {articleId: this.articleId, action: this.action});
             }
-
-            // 初始化密码弹窗
+            
             initPasswordModal() {
                 const modal = document.getElementById('passwordModal');
                 const closeBtn = modal.querySelector('.modal-close');
                 const cancelBtn = modal.querySelector('.modal-cancel');
                 const confirmBtn = modal.querySelector('.modal-confirm');
                 const overlay = modal.querySelector('.modal-overlay');
-
+                
                 const closeModal = () => {
                     modal.style.display = 'none';
                     document.getElementById('modalPassword').value = '';
                     document.getElementById('modalMessage').textContent = '';
                 };
-
+                
                 closeBtn.addEventListener('click', closeModal);
                 cancelBtn.addEventListener('click', closeModal);
                 overlay.addEventListener('click', closeModal);
-
+                
                 confirmBtn.addEventListener('click', () => {
                     this.confirmPassword();
                 });
-
+                
                 document.getElementById('modalPassword').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.confirmPassword();
-                    }
+                    if (e.key === 'Enter') this.confirmPassword();
                 });
-
+                
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && modal.style.display !== 'none') {
-                        closeModal();
-                    }
+                    if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
                 });
-
+                
                 this.passwordModal = modal;
                 this.passwordCallback = null;
             }
-
-            // 显示密码弹窗
+            
             showPasswordModal(callback) {
                 this.passwordCallback = callback;
                 this.passwordModal.style.display = 'block';
                 document.getElementById('modalPassword').focus();
             }
-
-            // 验证密码
+            
             confirmPassword() {
                 const password = document.getElementById('modalPassword').value;
                 const messageEl = document.getElementById('modalMessage');
-
+                
                 if (!password) {
                     messageEl.textContent = '请输入密码';
                     messageEl.className = 'modal-message error';
                     return;
                 }
-
+                
                 if (window.verifyPassword && window.verifyPassword(password)) {
-                    messageEl.textContent = '';
+                    messageEl.textContent = '验证成功';
                     messageEl.className = 'modal-message';
-
-                    this.passwordModal.style.display = 'none';
-                    document.getElementById('modalPassword').value = '';
-
-                    if (this.passwordCallback) {
-                        this.passwordCallback(true);
-                    }
+                    
+                    setTimeout(() => {
+                        this.passwordModal.style.display = 'none';
+                        document.getElementById('modalPassword').value = '';
+                        if (this.passwordCallback) this.passwordCallback(true);
+                    }, 500);
                 } else {
                     messageEl.textContent = '密码错误';
                     messageEl.className = 'modal-message error';
                     document.getElementById('modalPassword').value = '';
                     document.getElementById('modalPassword').focus();
-
-                    if (this.passwordCallback) {
-                        this.passwordCallback(false);
-                    }
+                    if (this.passwordCallback) this.passwordCallback(false);
                 }
             }
-
-            // 路由分发
+            
             async route() {
-                // 如果文章ID为空，检查是否有特殊路由
+                console.log('路由分发，文章ID:', this.articleId, '动作:', this.action);
+                
                 if (!this.articleId) {
-                    const hash = window.location.hash.substring(1);
-
-                    switch (hash) {
-                        case '':
-                        case '/':
-                            // 首页
-                            this.showHomePage();
-                            return;
-                        default:
-                            this.show404();
-                            return;
-                    }
+                    this.showHomePage();
+                    return;
                 }
-
-                if (this.action === 'edit') {
-                    await this.showEditPage();
-                } else {
-                    await this.showArticle();
+                
+                try {
+                    if (this.action === 'edit') {
+                        await this.showEditPage();
+                    } else {
+                        await this.showArticle();
+                    }
+                } catch (error) {
+                    console.error('路由失败:', error);
+                    this.showError(`加载失败：${error.message}`);
                 }
             }
-
-            // 显示404页面
-            show404() {
-                this.container.innerHTML = `
-                    <div class="error-container">
+            
+            async showArticle() {
+                try {
+                    console.log('加载文章:', this.articleId);
+                    
+                    // 获取文章并增加浏览次数
+                    const { data: article, error } = await supabase
+                        .from('articles')
+                        .select('*')
+                        .eq('id', this.articleId)
+                        .single();
+                    
+                    if (error || !article) throw new Error('文章不存在');
+                    
+                    // 更新浏览次数
+                    const currentViewCount = article.view_count || 0;
+                    await supabase
+                        .from('articles')
+                        .update({ 
+                            view_count: currentViewCount + 1,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', this.articleId);
+                    
+                    this.currentArticle = article;
+                    
+                    const date = new Date(article.created_at);
+                    const formattedDate = date.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const updateDate = new Date(article.updated_at);
+                    const updateInfo = updateDate > date ? 
+                        `（最后更新：${updateDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）` : '';
+                    
+                    this.container.innerHTML = `
                         <nav class="article-nav">
+                            <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
+                            <a href="new.html"><i class="fas fa-plus"></i> 新建文章</a>
+                            <a href="?action=edit#${article.id}"><i class="fas fa-edit"></i> 编辑本文</a>
+                            <a href="../" class="home-link"><i class="fas fa-home"></i> 返回主页</a>
+                        </nav>
+                        
+                        <article class="article-content">
+                            <header class="article-header">
+                                <h1>${this.escapeHtml(article.title)}</h1>
+                                <div class="article-meta">
+                                    <span><i class="far fa-calendar"></i> ${formattedDate} ${updateInfo}</span>
+                                    <span><i class="far fa-eye"></i> ${article.view_count || 0} 次浏览</span>
+                                </div>
+                            </header>
+                            
+                            <div class="article-body">
+                                ${renderMarkdown(this.escapeHtml(article.content))}
+                            </div>
+                            
+                            <footer class="article-footer">
+                                <div class="article-actions">
+                                    <a href="?action=edit#${article.id}" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑文章</a>
+                                    <a href="list.html" class="btn btn-list"><i class="fas fa-list"></i> 更多文章</a>
+                                </div>
+                            </footer>
+                        </article>
+                    `;
+                    
+                    document.title = `${article.title} - 文章系统`;
+                    
+                } catch (error) {
+                    console.error('加载文章失败:', error);
+                    this.showError(`文章加载失败：${error.message}`);
+                }
+            }
+            
+            async showEditPage() {
+                try {
+                    console.log('加载编辑页面:', this.articleId);
+                    
+                    const { data: article, error } = await supabase
+                        .from('articles')
+                        .select('*')
+                        .eq('id', this.articleId)
+                        .single();
+                    
+                    if (error || !article) throw new Error('文章不存在');
+                    
+                    this.currentArticle = article;
+                    
+                    this.container.innerHTML = `
+                        <nav class="article-nav">
+                            <a href="#${this.articleId}"><i class="fas fa-arrow-left"></i> 返回文章</a>
                             <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
                             <a href="../"><i class="fas fa-home"></i> 返回主页</a>
                         </nav>
                         
-                        <div class="error-content">
-                            <div class="error-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <h2>页面未找到</h2>
-                            <p>您访问的页面不存在</p>
-                            <div class="error-actions">
-                                <a href="list.html" class="btn btn-primary">查看文章列表</a>
-                                <a href="../" class="btn btn-secondary">返回主页</a>
-                            </div>
+                        <div class="edit-container">
+                            <h1><i class="fas fa-edit"></i> 编辑文章</h1>
+                            <div id="editMessage" class="message"></div>
+                            
+                            <form id="editForm" class="article-form">
+                                <div class="form-group">
+                                    <label for="title"><i class="fas fa-heading"></i> 文章标题</label>
+                                    <input type="text" id="title" value="${this.escapeHtml(article.title)}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="content"><i class="fas fa-file-alt"></i> 文章内容</label>
+                                    <textarea id="content" rows="20" required>${this.escapeHtml(article.content)}</textarea>
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i> 支持Markdown语法
+                                    </small>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> 保存修改
+                                    </button>
+                                    <a href="#${this.articleId}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> 取消
+                                    </a>
+                                    <button type="button" id="deleteBtn" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> 删除文章
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                    </div>
-                `;
+                    `;
+                    
+                    // 绑定表单提交事件
+                    document.getElementById('editForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const title = document.getElementById('title').value.trim();
+                        const content = document.getElementById('content').value.trim();
+                        
+                        if (!title || !content) {
+                            this.showEditMessage('请填写所有字段', 'error');
+                            return;
+                        }
+                        
+                        this.showPasswordModal(async (success) => {
+                            if (success) {
+                                await this.updateArticle(title, content);
+                            } else {
+                                this.showEditMessage('密码错误', 'error');
+                            }
+                        });
+                    });
+                    
+                    // 绑定删除按钮
+                    document.getElementById('deleteBtn').addEventListener('click', () => {
+                        this.deleteArticle();
+                    });
+                    
+                } catch (error) {
+                    console.error('加载编辑页面失败:', error);
+                    this.showError(`加载失败：${error.message}`);
+                }
             }
-
-            // 显示首页
+            
+            async updateArticle(title, content) {
+                try {
+                    console.log('更新文章:', this.articleId);
+                    
+                    const { error } = await supabase
+                        .from('articles')
+                        .update({
+                            title: title,
+                            content: content,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', this.articleId);
+                    
+                    if (error) throw error;
+                    
+                    this.showEditMessage('<i class="fas fa-check-circle"></i> 文章更新成功！正在跳转...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.hash = this.articleId;
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('更新失败:', error);
+                    this.showEditMessage(`更新失败: ${error.message}`, 'error');
+                }
+            }
+            
+            async deleteArticle() {
+                if (!confirm('确定要删除这篇文章吗？此操作不可撤销！')) {
+                    return;
+                }
+                
+                this.showPasswordModal(async (success) => {
+                    if (success) {
+                        try {
+                            const { error } = await supabase
+                                .from('articles')
+                                .delete()
+                                .eq('id', this.articleId);
+                            
+                            if (error) throw error;
+                            
+                            alert('文章已删除！');
+                            window.location.href = 'list.html';
+                            
+                        } catch (error) {
+                            alert(`删除失败: ${error.message}`);
+                        }
+                    }
+                });
+            }
+            
             showHomePage() {
                 this.container.innerHTML = `
                     <div class="home-container">
@@ -327,381 +436,11 @@
                                     <i class="fas fa-plus"></i> 创建新文章
                                 </a>
                             </div>
-                            
-                            <div class="home-features">
-                                <div class="feature">
-                                    <i class="fas fa-lock"></i>
-                                    <h3>安全访问</h3>
-                                    <p>密码保护的管理功能</p>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-edit"></i>
-                                    <h3>Markdown支持</h3>
-                                    <p>支持Markdown格式编辑</p>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-chart-line"></i>
-                                    <h3>统计功能</h3>
-                                    <p>查看文章浏览统计</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 `;
-
-                const style = document.createElement('style');
-                style.textContent = `
-                    .home-container {
-                        max-width: 1200px;
-                        margin: 0 auto;
-                        padding: 20px;
-                    }
-                    
-                    .home-content {
-                        text-align: center;
-                        padding: 60px 20px;
-                        background: white;
-                        border-radius: 20px;
-                        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-                        margin-top: 30px;
-                    }
-                    
-                    .home-content h1 {
-                        font-size: 48px;
-                        margin-bottom: 10px;
-                        color: #333;
-                    }
-                    
-                    .subtitle {
-                        font-size: 18px;
-                        color: #666;
-                        margin-bottom: 40px;
-                    }
-                    
-                    .btn-large {
-                        padding: 15px 30px;
-                        font-size: 18px;
-                        margin: 0 10px;
-                    }
-                    
-                    .home-actions {
-                        margin-bottom: 60px;
-                    }
-                    
-                    .home-features {
-                        display: flex;
-                        justify-content: center;
-                        gap: 40px;
-                        flex-wrap: wrap;
-                    }
-                    
-                    .feature {
-                        flex: 1;
-                        min-width: 250px;
-                        padding: 30px;
-                        background: #f8f9fa;
-                        border-radius: 15px;
-                        transition: transform 0.3s ease;
-                    }
-                    
-                    .feature:hover {
-                        transform: translateY(-10px);
-                    }
-                    
-                    .feature i {
-                        font-size: 48px;
-                        color: #667eea;
-                        margin-bottom: 20px;
-                    }
-                    
-                    .feature h3 {
-                        margin: 15px 0 10px;
-                        color: #333;
-                    }
-                    
-                    .feature p {
-                        color: #666;
-                    }
-                `;
-                document.head.appendChild(style);
             }
-
-            // 显示文章
-            async showArticle() {
-                try {
-                    // 先获取当前文章的浏览次数
-                    const { data: articleData, error: fetchError } = await supabase
-                        .from('articles')
-                        .select('view_count')
-                        .eq('id', this.articleId)
-                        .single();
-
-                    // 增加浏览次数
-                    if (!fetchError && articleData) {
-                        const currentViewCount = articleData.view_count || 0;
-                        const newViewCount = currentViewCount + 1;
-
-                        await supabase
-                            .from('articles')
-                            .update({
-                                view_count: newViewCount,
-                                updated_at: new Date().toISOString()
-                            })
-                            .eq('id', this.articleId);
-                    }
-
-                    // 获取完整的文章数据
-                    const { data: article, error } = await supabase
-                        .from('articles')
-                        .select('*')
-                        .eq('id', this.articleId)
-                        .single();
-
-                    if (error || !article) throw new Error('文章不存在');
-
-                    this.currentArticle = article;
-
-                    const date = new Date(article.created_at);
-                    const formattedDate = date.toLocaleDateString('zh-CN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-
-                    const updateDate = new Date(article.updated_at);
-                    const updateInfo = updateDate > date ?
-                        `（最后更新：${updateDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）` : '';
-
-                    this.container.innerHTML = `
-                        <nav class="article-nav">
-                            <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
-                            <a href="new.html"><i class="fas fa-plus"></i> 新建文章</a>
-                            <a href="?action=edit#${article.id}"><i class="fas fa-edit"></i> 编辑本文</a>
-                            <a href="../" class="home-link"><i class="fas fa-home"></i> 返回主页</a>
-                        </nav>
-                        
-                        <article class="article-content">
-                            <header class="article-header">
-                                <h1>${article.title}</h1>
-                                <div class="article-meta">
-                                    <span><i class="far fa-calendar"></i> ${formattedDate} ${updateInfo}</span>
-                                    <span><i class="far fa-eye"></i> ${article.view_count || 0} 次浏览</span>
-                                </div>
-                            </header>
-                            
-                            <div class="article-body">
-                                ${this.renderMarkdown(article.content)}
-                            </div>
-                            
-                            <footer class="article-footer">
-                                <div class="article-actions">
-                                    <a href="?action=edit#${article.id}" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑文章</a>
-                                    <a href="list.html" class="btn btn-list"><i class="fas fa-list"></i> 更多文章</a>
-                                </div>
-                            </footer>
-                        </article>
-                        
-                        <div id="message" class="message"></div>
-                    `;
-
-                    document.title = `${article.title} - 文章系统`;
-
-                } catch (error) {
-                    console.error('加载文章失败:', error);
-                    this.showError(`文章加载失败：${error.message}`);
-                }
-            }
-
-            // 显示编辑页面
-            // 修改 showEditPage 方法
-            async showEditPage() {
-                try {
-                    console.log('加载编辑页面，文章ID:', this.articleId);
-                    console.log('当前URL:', window.location.href);
-
-                    const { data: article, error } = await supabase
-                        .from('articles')
-                        .select('*')
-                        .eq('id', this.articleId)
-                        .single();
-
-                    if (error || !article) {
-                        console.error('文章加载失败:', error);
-                        throw new Error('文章不存在');
-                    }
-
-                    this.currentArticle = article;
-
-                    this.container.innerHTML = `
-            <nav class="article-nav">
-                <a href="#${this.articleId}"><i class="fas fa-arrow-left"></i> 返回文章</a>
-                <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
-                <a href="../"><i class="fas fa-home"></i> 返回主页</a>
-            </nav>
             
-            <div class="edit-container">
-                <h1><i class="fas fa-edit"></i> 编辑文章</h1>
-                <div id="message" class="message"></div>
-                
-                <form id="editForm" class="article-form">
-                    <div class="form-group">
-                        <label for="title"><i class="fas fa-heading"></i> 文章标题</label>
-                        <input type="text" id="title" value="${article.title.replace(/"/g, '&quot;')}" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="content"><i class="fas fa-file-alt"></i> 文章内容</label>
-                        <textarea id="content" rows="20" required>${article.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-                        <small class="form-help">
-                            <i class="fas fa-info-circle"></i> 支持Markdown语法
-                        </small>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> 保存修改
-                        </button>
-                        <a href="#${this.articleId}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> 取消
-                        </a>
-                        <button type="button" class="btn btn-danger" onclick="window.articleSystem.deleteArticle()">
-                            <i class="fas fa-trash"></i> 删除文章
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-
-                    // 绑定表单提交事件
-                    document.getElementById('editForm').addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        console.log('表单提交');
-
-                        const title = document.getElementById('title').value.trim();
-                        const content = document.getElementById('content').value.trim();
-
-                        console.log('标题:', title);
-                        console.log('内容长度:', content.length);
-
-                        if (!title || !content) {
-                            this.showMessage('请填写所有字段', 'error');
-                            return;
-                        }
-
-                        // 显示密码验证
-                        this.showPasswordModal(async (success) => {
-                            console.log('密码验证结果:', success);
-                            if (success) {
-                                await this.updateArticle(title, content);
-                            } else {
-                                this.showMessage('密码错误，请重试', 'error');
-                            }
-                        });
-                    });
-
-                    console.log('编辑页面加载完成');
-
-                } catch (error) {
-                    console.error('加载编辑页面失败:', error);
-                    this.showError(`文章加载失败：${error.message}`);
-                }
-            }
-
-            // 修改 updateArticle 方法
-            async updateArticle(title, content) {
-                try {
-                    console.log('开始更新文章:', this.articleId);
-
-                    const { data, error } = await supabase
-                        .from('articles')
-                        .update({
-                            title: title,
-                            content: content,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', this.articleId)
-                        .select(); // 添加select以获取更新结果
-
-                    if (error) {
-                        console.error('更新失败:', error);
-                        throw error;
-                    }
-
-                    console.log('更新成功:', data);
-                    this.showMessage('<i class="fas fa-check-circle"></i> 文章更新成功！正在跳转...', 'success');
-
-                    // 等待1秒后跳转
-                    setTimeout(() => {
-                        window.location.href = `#${this.articleId}`;
-                    }, 1000);
-
-                } catch (error) {
-                    console.error('更新文章失败:', error);
-                    this.showMessage(`更新失败: ${error.message}`, 'error');
-                }
-            }
-
-            // 修改 deleteArticle 方法
-            async deleteArticle() {
-                console.log('删除文章:', this.articleId);
-
-                if (!confirm('确定要删除这篇文章吗？此操作不可撤销！')) {
-                    return;
-                }
-
-                this.showPasswordModal(async (success) => {
-                    if (success) {
-                        try {
-                            console.log('开始删除文章:', this.articleId);
-
-                            const { error } = await supabase
-                                .from('articles')
-                                .delete()
-                                .eq('id', this.articleId);
-
-                            if (error) {
-                                console.error('删除失败:', error);
-                                throw error;
-                            }
-
-                            console.log('删除成功');
-                            alert('文章已删除！');
-                            window.location.href = 'list.html';
-
-                        } catch (error) {
-                            console.error('删除文章失败:', error);
-                            alert(`删除失败: ${error.message}`);
-                        }
-                    } else {
-                        console.log('密码验证失败');
-                    }
-                });
-            }
-
-            // 修改 showMessage 方法，添加更好的错误显示
-            showMessage(text, type = 'info') {
-                const messageEl = document.getElementById('message');
-                if (!messageEl) {
-                    console.warn('消息元素不存在');
-                    return;
-                }
-
-                console.log('显示消息:', type, text);
-                messageEl.innerHTML = text;
-                messageEl.className = `message message-${type}`;
-                messageEl.style.display = 'block';
-
-                // 如果是错误消息，显示更长时间
-                const duration = type === 'success' ? 3000 : (type === 'error' ? 10000 : 5000);
-
-                setTimeout(() => {
-                    messageEl.style.display = 'none';
-                }, duration);
-            }
-
-            // 显示错误
             showError(message) {
                 this.container.innerHTML = `
                     <div class="error-container">
@@ -724,22 +463,35 @@
                     </div>
                 `;
             }
+            
+            showEditMessage(text, type) {
+                const messageEl = document.getElementById('editMessage');
+                if (!messageEl) return;
+                
+                messageEl.innerHTML = text;
+                messageEl.className = `message message-${type}`;
+                messageEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    messageEl.style.display = 'none';
+                }, type === 'success' ? 3000 : 5000);
+            }
+            
+            escapeHtml(text) {
+                if (!text) return '';
+                return text
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
         }
-
-        // 初始化文章系统
+        
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', () => {
             window.articleSystem = new ArticleSystem('app');
-
-            // 处理页面加载时的重定向
-            const path = window.location.pathname;
-            const hash = window.location.hash.substring(1);
-
-            // 如果直接访问index.html且有hash，重定向到对应的路由
-            if (path.includes('index.html') && hash) {
-                window.location.href = hash;
-            }
         });
     </script>
 </body>
-
 </html>
