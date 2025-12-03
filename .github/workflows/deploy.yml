@@ -1,77 +1,39 @@
-name: Deploy Article System
+name: Build and Deploy
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Debug - List files
-      run: |
-        echo "📁 项目结构："
-        find . -type f -name "*.html" -o -name "*.js" | sort
-        echo ""
-        echo "📁 article目录："
-        ls -la article/ || echo "article目录不存在"
-        echo ""
-        echo "📁 js目录："
-        ls -la article/js/ || echo "js目录不存在"
-        
-    - name: Create auth.js from environment variables
+    - name: Replace secrets in auth.js
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        ADMIN_PASS: ${{ secrets.ADMIN_PASSWORD }}
       run: |
-        echo "🔧 开始创建 auth.js..."
+        # 复制模板文件
+        cp auth.template.js auth.js
         
-        # 确保目录存在
+        # 使用sed替换占位符
+        sed -i "s|__SUPABASE_URL__|$SUPABASE_URL|g" auth.js
+        sed -i "s|__SUPABASE_ANON_KEY__|$SUPABASE_KEY|g" auth.js
+        sed -i "s|__ADMIN_PASSWORD__|$ADMIN_PASS|g" auth.js
+        
+        # 移动到正确目录
         mkdir -p article/js
+        mv auth.js article/js/
         
-        # 生成 auth.js 文件
-        cat > article/js/auth.js << 'EOF'
-        // auth.js - 自动生成文件
-        // 生成时间: $(date)
+        echo "✅ auth.js 已生成"
         
-        // Supabase配置
-        window.supabaseConfig = {
-            url: '${{ secrets.SUPABASE_URL }}',
-            anonKey: '${{ secrets.SUPABASE_ANON_KEY }}',
-            adminPassword: '${{ secrets.ADMIN_PASSWORD }}'
-        };
-        
-        // 密码验证函数
-        window.verifyPassword = function(password) {
-            return password === window.supabaseConfig.adminPassword;
-        };
-        
-        console.log('✅ auth.js 已加载 - Supabase URL:', window.supabaseConfig.url ? '已设置' : '未设置');
-        EOF
-        
-        # 显示生成的文件内容（隐藏敏感信息）
-        echo "📄 生成的文件内容（敏感信息已隐藏）："
-        sed 's/\${{ secrets\.SUPABASE_URL }}/[HIDDEN_URL]/g; s/\${{ secrets\.SUPABASE_ANON_KEY }}/[HIDDEN_KEY]/g; s/\${{ secrets\.ADMIN_PASSWORD }}/[HIDDEN_PASSWORD]/g' article/js/auth.js
-        
-        echo ""
-        echo "✅ auth.js 已创建"
-        ls -la article/js/auth.js
-        
-    - name: Deploy to GitHub Pages
+    - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
-        force_orphan: true
