@@ -393,7 +393,7 @@
                                 <p class="article-item-preview">${this.escapeHtml(preview)}</p>
                             </div>
                             <div class="article-item-actions">
-                                <a href="/${article.id}" onclick="event.preventDefault(); articleSystem.navigateTo('/${article.id}');" class="btn btn-small btn-primary">
+                                <a href="article/${article.id}" onclick="event.preventDefault(); articleSystem.navigateTo('/${article.id}');" class="btn btn-small btn-primary">
                                     <i class="fas fa-eye"></i> 阅读
                                 </a>
                                 <button onclick="articleSystem.showEditModal('${article.id}')" class="btn btn-small btn-secondary">
