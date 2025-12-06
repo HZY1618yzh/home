@@ -1,26 +1,123 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章系统 - HZY</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">
+
     <style>
-        .password-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
-        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
-        .modal-header h3 { margin: 0; color: #333; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; line-height: 1; }
-        .modal-body { margin-bottom: 1.5rem; }
-        .modal-body p { margin-bottom: 1rem; color: #555; }
-        #modalPassword { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 0.5rem; }
-        .modal-message { margin-top: 0.5rem; font-size: 0.9rem; min-height: 1.2rem; }
-        .modal-message.error { color: #dc3545; }
-        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        #modalPassword {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-message {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            min-height: 1.2rem;
+        }
+
+        .modal-message.error {
+            color: #dc3545;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Markdown 内容样式 */
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="app">
         <div class="loading">
@@ -28,7 +125,6 @@
             <p>加载中...</p>
         </div>
     </div>
-
     <div id="passwordModal" class="password-modal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
@@ -47,26 +143,31 @@
             </div>
         </div>
     </div>
-
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script>
         // Markdown渲染函数
         function renderMarkdown(text) {
-            if (!text) return '';
-            return text
-                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/`(.*?)`/g, '<code>$1</code>')
-                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/\n/g, '<br>')
-                .replace(/^\s*$/gm, '<br>');
+            if (!text || typeof text !== 'string') return '';
+            if (window.markdownit) {
+                try {
+                    const md = window.markdownit({
+                        html: true,
+                        breaks: true,
+                        linkify: true,
+                        typographer: true
+                    });
+                    // 渲染 markdown
+                    return md.render(text);
+                } catch (error) {
+                    console.warn('md渲染器出错', error);
+                }
+            }
+            console.warn('没有md渲染器');
+            return '';
         }
 
         class ArticleSystem {
@@ -77,7 +178,7 @@
                 this.currentArticle = null;
                 this.init();
             }
-            
+
             init() {
                 console.log('初始化文章系统');
                 this.parseUrl();
@@ -88,14 +189,14 @@
                     this.route();
                 });
             }
-            
+
             parseUrl() {
                 const url = new URL(window.location.href);
                 const hash = url.hash.substring(1);
                 const searchParams = url.searchParams;
-                
-                console.log('解析URL:', {hash, search: url.search});
-                
+
+                console.log('解析URL:', { hash, search: url.search });
+
                 // 处理编辑模式
                 if (searchParams.get('action') === 'edit') {
                     this.action = 'edit';
@@ -107,68 +208,68 @@
                     this.articleId = null;
                     this.action = 'view';
                 }
-                
+
                 // 验证文章ID格式
                 if (this.articleId && !/^[a-zA-Z0-9]{8}$/.test(this.articleId)) {
                     this.articleId = null;
                 }
-                
-                console.log('解析结果:', {articleId: this.articleId, action: this.action});
+
+                console.log('解析结果:', { articleId: this.articleId, action: this.action });
             }
-            
+
             initPasswordModal() {
                 const modal = document.getElementById('passwordModal');
                 const closeBtn = modal.querySelector('.modal-close');
                 const cancelBtn = modal.querySelector('.modal-cancel');
                 const confirmBtn = modal.querySelector('.modal-confirm');
                 const overlay = modal.querySelector('.modal-overlay');
-                
+
                 const closeModal = () => {
                     modal.style.display = 'none';
                     document.getElementById('modalPassword').value = '';
                     document.getElementById('modalMessage').textContent = '';
                 };
-                
+
                 closeBtn.addEventListener('click', closeModal);
                 cancelBtn.addEventListener('click', closeModal);
                 overlay.addEventListener('click', closeModal);
-                
+
                 confirmBtn.addEventListener('click', () => {
                     this.confirmPassword();
                 });
-                
+
                 document.getElementById('modalPassword').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.confirmPassword();
                 });
-                
+
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
                 });
-                
+
                 this.passwordModal = modal;
                 this.passwordCallback = null;
             }
-            
+
             showPasswordModal(callback) {
                 this.passwordCallback = callback;
                 this.passwordModal.style.display = 'block';
                 document.getElementById('modalPassword').focus();
             }
-            
+
             confirmPassword() {
                 const password = document.getElementById('modalPassword').value;
                 const messageEl = document.getElementById('modalMessage');
-                
+
                 if (!password) {
                     messageEl.textContent = '请输入密码';
                     messageEl.className = 'modal-message error';
                     return;
                 }
-                
+
                 if (window.verifyPassword && window.verifyPassword(password)) {
                     messageEl.textContent = '验证成功';
                     messageEl.className = 'modal-message';
-                    
+
                     setTimeout(() => {
                         this.passwordModal.style.display = 'none';
                         document.getElementById('modalPassword').value = '';
@@ -182,15 +283,15 @@
                     if (this.passwordCallback) this.passwordCallback(false);
                 }
             }
-            
+
             async route() {
                 console.log('路由分发，文章ID:', this.articleId, '动作:', this.action);
-                
+
                 if (!this.articleId) {
                     this.showHomePage();
                     return;
                 }
-                
+
                 try {
                     if (this.action === 'edit') {
                         await this.showEditPage();
@@ -202,32 +303,32 @@
                     this.showError(`加载失败：${error.message}`);
                 }
             }
-            
+
             async showArticle() {
                 try {
                     console.log('加载文章:', this.articleId);
-                    
+
                     // 获取文章并增加浏览次数
                     const { data: article, error } = await supabase
                         .from('articles')
                         .select('*')
                         .eq('id', this.articleId)
                         .single();
-                    
+
                     if (error || !article) throw new Error('文章不存在');
-                    
+
                     // 更新浏览次数
                     const currentViewCount = article.view_count || 0;
                     await supabase
                         .from('articles')
-                        .update({ 
+                        .update({
                             view_count: currentViewCount + 1,
                             updated_at: new Date().toISOString()
                         })
                         .eq('id', this.articleId);
-                    
+
                     this.currentArticle = article;
-                    
+
                     const date = new Date(article.created_at);
                     const formattedDate = date.toLocaleDateString('zh-CN', {
                         year: 'numeric',
@@ -236,11 +337,11 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-                    
+
                     const updateDate = new Date(article.updated_at);
-                    const updateInfo = updateDate > date ? 
+                    const updateInfo = updateDate > date ?
                         `（最后更新：${updateDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）` : '';
-                    
+
                     this.container.innerHTML = `
                         <nav class="article-nav">
                             <a href="list.html"><i class="fas fa-list"></i> 文章列表</a>
@@ -259,7 +360,7 @@
                             </header>
                             
                             <div class="article-body">
-                                ${renderMarkdown(this.escapeHtml(article.content))}
+                                ${renderMarkdown(article.content)}
                             </div>
                             
                             <footer class="article-footer">
@@ -270,29 +371,29 @@
                             </footer>
                         </article>
                     `;
-                    
+
                     document.title = `${article.title} - 文章系统`;
-                    
+
                 } catch (error) {
                     console.error('加载文章失败:', error);
                     this.showError(`文章加载失败：${error.message}`);
                 }
             }
-            
+
             async showEditPage() {
                 try {
                     console.log('加载编辑页面:', this.articleId);
-                    
+
                     const { data: article, error } = await supabase
                         .from('articles')
                         .select('*')
                         .eq('id', this.articleId)
                         .single();
-                    
+
                     if (error || !article) throw new Error('文章不存在');
-                    
+
                     this.currentArticle = article;
-                    
+
                     this.container.innerHTML = `
                         <nav class="article-nav">
                             <a href="#${this.articleId}"><i class="fas fa-arrow-left"></i> 返回文章</a>
@@ -332,18 +433,18 @@
                             </form>
                         </div>
                     `;
-                    
+
                     // 绑定表单提交事件
                     document.getElementById('editForm').addEventListener('submit', (e) => {
                         e.preventDefault();
                         const title = document.getElementById('title').value.trim();
                         const content = document.getElementById('content').value.trim();
-                        
+
                         if (!title || !content) {
                             this.showEditMessage('请填写所有字段', 'error');
                             return;
                         }
-                        
+
                         this.showPasswordModal(async (success) => {
                             if (success) {
                                 await this.updateArticle(title, content);
@@ -352,22 +453,22 @@
                             }
                         });
                     });
-                    
+
                     // 绑定删除按钮
                     document.getElementById('deleteBtn').addEventListener('click', () => {
                         this.deleteArticle();
                     });
-                    
+
                 } catch (error) {
                     console.error('加载编辑页面失败:', error);
                     this.showError(`加载失败：${error.message}`);
                 }
             }
-            
+
             async updateArticle(title, content) {
                 try {
                     console.log('更新文章:', this.articleId);
-                    
+
                     const { error } = await supabase
                         .from('articles')
                         .update({
@@ -376,26 +477,26 @@
                             updated_at: new Date().toISOString()
                         })
                         .eq('id', this.articleId);
-                    
+
                     if (error) throw error;
-                    
+
                     this.showEditMessage('<i class="fas fa-check-circle"></i> 文章更新成功！正在跳转...', 'success');
-                    
+
                     setTimeout(() => {
                         window.location.hash = this.articleId;
                     }, 1500);
-                    
+
                 } catch (error) {
                     console.error('更新失败:', error);
                     this.showEditMessage(`更新失败: ${error.message}`, 'error');
                 }
             }
-            
+
             async deleteArticle() {
                 if (!confirm('确定要删除这篇文章吗？此操作不可撤销！')) {
                     return;
                 }
-                
+
                 this.showPasswordModal(async (success) => {
                     if (success) {
                         try {
@@ -403,19 +504,19 @@
                                 .from('articles')
                                 .delete()
                                 .eq('id', this.articleId);
-                            
+
                             if (error) throw error;
-                            
+
                             alert('文章已删除！');
                             window.location.href = 'list.html';
-                            
+
                         } catch (error) {
                             alert(`删除失败: ${error.message}`);
                         }
                     }
                 });
             }
-            
+
             showHomePage() {
                 this.container.innerHTML = `
                     <div class="home-container">
@@ -440,7 +541,7 @@
                     </div>
                 `;
             }
-            
+
             showError(message) {
                 this.container.innerHTML = `
                     <div class="error-container">
@@ -463,20 +564,20 @@
                     </div>
                 `;
             }
-            
+
             showEditMessage(text, type) {
                 const messageEl = document.getElementById('editMessage');
                 if (!messageEl) return;
-                
+
                 messageEl.innerHTML = text;
                 messageEl.className = `message message-${type}`;
                 messageEl.style.display = 'block';
-                
+
                 setTimeout(() => {
                     messageEl.style.display = 'none';
                 }, type === 'success' ? 3000 : 5000);
             }
-            
+
             escapeHtml(text) {
                 if (!text) return '';
                 return text
@@ -487,11 +588,12 @@
                     .replace(/'/g, "&#039;");
             }
         }
-        
+
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', () => {
             window.articleSystem = new ArticleSystem('app');
         });
     </script>
 </body>
+
 </html>
