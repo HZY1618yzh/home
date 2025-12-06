@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建文章 - 文章系统</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 密码弹窗样式 */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        #modalPassword {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-message {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            min-height: 1.2rem;
+        }
+
+        .modal-message.error {
+            color: #dc3545;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="article-nav">
+        <a href="../"><i class="fas fa-list"></i> 文章列表</a>
+        <a href="../"><i class="fas fa-home"></i> 返回主页</a>
+    </nav>
+
+    <div class="create-container">
+        <h1><i class="fas fa-plus-circle"></i> 创建新文章</h1>
+        <div id="message" class="message"></div>
+
+        <form id="createForm" class="article-form">
+            <div class="form-group">
+                <label for="title"><i class="fas fa-heading"></i> 文章标题</label>
+                <input type="text" id="title" placeholder="输入文章标题" required>
+            </div>
+
+            <div class="form-group">
+                <label for="content"><i class="fas fa-file-alt"></i> 文章内容</label>
+                <textarea id="content" placeholder="开始写作吧..." rows="20" required></textarea>
+                <small class="form-help">
+                    <i class="fas fa-info-circle"></i> 支持Markdown语法
+                </small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> 发布文章
+                </button>
+                <a href=".\" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 密码弹窗 -->
+    <div id="passwordModal" class="password-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-lock"></i> 管理员验证</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>请输入管理员密码：</p>
+                <input type="password" id="modalPassword" placeholder="输入密码" autocomplete="current-password">
+                <div id="modalMessage" class="modal-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">取消</button>
+                <button class="btn btn-primary modal-confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // 初始化密码弹窗
+        function initPasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            const closeBtn = modal.querySelector('.modal-close');
+            const cancelBtn = modal.querySelector('.modal-cancel');
+            const confirmBtn = modal.querySelector('.modal-confirm');
+            const overlay = modal.querySelector('.modal-overlay');
+
+            const closeModal = () => {
+                modal.style.display = 'none';
+                document.getElementById('modalPassword').value = '';
+                document.getElementById('modalMessage').textContent = '';
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', closeModal);
+
+            confirmBtn.addEventListener('click', () => {
+                confirmPassword();
+            });
+
+            document.getElementById('modalPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    confirmPassword();
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.style.display !== 'none') {
+                    closeModal();
+                }
+            });
+        }
+
+        // 验证密码
+        function confirmPassword() {
+            const password = document.getElementById('modalPassword').value;
+            const messageEl = document.getElementById('modalMessage');
+
+            if (!password) {
+                messageEl.textContent = '请输入密码';
+                messageEl.className = 'modal-message error';
+                return;
+            }
+
+            if (window.verifyPassword && window.verifyPassword(password)) {
+                messageEl.textContent = '';
+                messageEl.className = 'modal-message';
+
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('modalPassword').value = '';
+
+                // 创建文章
+                createArticleAfterAuth();
+            } else {
+                messageEl.textContent = '密码错误';
+                messageEl.className = 'modal-message error';
+                document.getElementById('modalPassword').value = '';
+                document.getElementById('modalPassword').focus();
+            }
+        }
+
+        // 显示密码弹窗
+        function showPasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            modal.style.display = 'block';
+            document.getElementById('modalPassword').focus();
+        }
+
+        // 表单提交
+        document.getElementById('createForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title || !content) {
+                showMessage('请填写所有字段', 'error');
+                return;
+            }
+
+            // 保存表单数据到临时变量
+            window.tempFormData = { title, content };
+
+            // 显示密码弹窗
+            showPasswordModal();
+        });
+
+        // 验证通过后创建文章
+        async function createArticleAfterAuth() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发布中...';
+            submitBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabase
+                    .from('articles')
+                    .insert([{
+                        title: window.tempFormData.title,
+                        content: window.tempFormData.content
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                const articleId = data[0].id;
+
+                // 在 createArticleAfterAuth 函数中修改
+                showMessage(`
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>文章创建成功！</h3>
+                        <p>文章ID: <code>${articleId}</code></p>
+                        <div class="success-actions">
+                            <a href="https://hzy1618yzh.qzz.io/article/#${articleId}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> 立即查看
+                            </a>
+                            <a href=".\" class="btn btn-secondary">
+                                <i class="fas fa-list"></i> 文章列表
+                            </a>
+                        </div>
+                    </div>
+                `, 'success');
+
+                // 清空表单
+                document.getElementById('createForm').reset();
+                delete window.tempFormData;
+
+            } catch (error) {
+                console.error('创建文章失败:', error);
+                showMessage(`发布失败: ${error.message}`, 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function showMessage(content, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.innerHTML = content;
+            messageEl.className = `message message-${type}`;
+            messageEl.style.display = 'block';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initPasswordModal();
+        });
+    </script>
+</body>
+
+</html>
